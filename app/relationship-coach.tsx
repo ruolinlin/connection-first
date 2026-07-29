@@ -110,6 +110,7 @@ const conflictTypes = [
 ];
 
 const liveStates = [
+  { id:"unhappy", icon:"😞", label:"她说“我不开心”", action:"先停下正在做的事，看向她。不要急着判断这件事值不值得不开心。", words:"对不起，我刚刚的做法让你不开心了。我想先听你说，不为自己辩解。", avoid:"不要说“对不起行了吧”“但我也不是故意的”。" },
   { id:"loud", icon:"🔥", label:"她声音很大", action:"你先把声音降低一半，身体不要逼近她。", words:"我先不解释。我听见你真的很生气，我在这里。", avoid:"不要说“你先冷静”。" },
   { id:"crying", icon:"💧", label:"她在哭", action:"停下手里的事，递纸巾或水；拥抱前先问。", words:"你不用现在把话说清楚。我先陪你，等你愿意再说。", avoid:"不要追问“到底怎么了”。" },
   { id:"silent", icon:"🌫️", label:"她不说话", action:"给她一点空间，但明确告诉她你不会消失。", words:"我不逼你现在说。我在旁边，等你准备好；半小时后我再来问你。", avoid:"不要用更长的沉默惩罚她。" },
@@ -261,7 +262,7 @@ function Home({ begin, go }: { begin: () => void; go: (v: View) => void }) {
 }
 
 function QuickCoach({ scenario, setScenario, conflictType, setConflictType, analyzed, analyze, deep }: any) {
-  const [liveState, setLiveState] = useState("loud");
+  const [liveState, setLiveState] = useState("unhappy");
   const [copied, setCopied] = useState(false);
   const current = conflictTypes.find(type => type.id === conflictType) || conflictTypes[0];
   const live = liveStates.find(state => state.id === liveState) || liveStates[0];
@@ -279,6 +280,7 @@ function QuickCoach({ scenario, setScenario, conflictType, setConflictType, anal
     <div className="live-state-grid">{liveStates.map(state => <button key={state.id} className={liveState===state.id?"active":""} onClick={()=>setLiveState(state.id)}><span>{state.icon}</span>{state.label}</button>)}</div>
     <motion.div key={live.id} className="now-card" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}>
       <header><span>现在，只做这三件事</span><small>大约 30 秒</small></header>
+      {live.id==="unhappy" && <div className="apology-first"><span>第一反应</span><strong>先说“对不起”</strong><small>为她已经受到的影响道歉，不必等到先证明自己有错。</small></div>}
       <div className="now-steps"><article><i>1</i><small>身体先做</small><p>{live.action}</p></article><article className="say-now"><i>2</i><small>只说这一句</small><p>“{live.words}”</p><button onClick={()=>{navigator.clipboard?.writeText(live.words);setCopied(true);setTimeout(()=>setCopied(false),1500)}}>{copied?<Check size={14}/>:<Quote size={14}/>} {copied?"已复制":"复制这句话"}</button></article><article className="avoid-now"><i>3</i><small>此刻不要</small><p>{live.avoid}</p></article></div>
       <div className="now-footer"><Pause size={15}/><span>说完后停十秒。不要为了消除自己的不安，马上继续解释。</span></div>
     </motion.div>
