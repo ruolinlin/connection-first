@@ -109,6 +109,24 @@ const conflictTypes = [
   },
 ];
 
+const liveStates = [
+  { id:"loud", icon:"🔥", label:"她声音很大", action:"你先把声音降低一半，身体不要逼近她。", words:"我先不解释。我听见你真的很生气，我在这里。", avoid:"不要说“你先冷静”。" },
+  { id:"crying", icon:"💧", label:"她在哭", action:"停下手里的事，递纸巾或水；拥抱前先问。", words:"你不用现在把话说清楚。我先陪你，等你愿意再说。", avoid:"不要追问“到底怎么了”。" },
+  { id:"silent", icon:"🌫️", label:"她不说话", action:"给她一点空间，但明确告诉她你不会消失。", words:"我不逼你现在说。我在旁边，等你准备好；半小时后我再来问你。", avoid:"不要用更长的沉默惩罚她。" },
+  { id:"leaving", icon:"🚪", label:"她想离开", action:"不要拦门、拉扯或追着解释，让出身体空间。", words:"我尊重你现在想离开。你安全到达后告诉我一声，我们今晚九点再联系，可以吗？", avoid:"不要威胁分手或阻止她离开。" },
+  { id:"wechat", icon:"💬", label:"正在微信争吵", action:"停止连续发送长消息，把沟通从“轰炸”变成一个清楚邀请。", words:"文字越说越乱。我不是不回应。你愿意的话，我们十分钟后打个电话；也可以明天再谈。", avoid:"不要刷屏、撤回、阴阳怪气。" },
+  { id:"both", icon:"⚡", label:"我们都很激动", action:"暂停二十分钟，各自去不同空间，让身体先降速。", words:"我怕我们继续说会互相伤害。我想暂停二十分钟，八点四十我一定回来。", avoid:"暂停不能变成失联。" },
+];
+
+const repairGestures = [
+  { icon:"🍫", title:"巧克力＋手写信", when:"适合：她喜欢小仪式，冲突已经缓和，你需要表达“我认真想过”。", do:"选她平时喜欢的口味。信只写三件事：我看见你哪里受伤、我承担什么、我接下来会怎么改。", avoid:"不要写成自我辩护，也不要用昂贵礼物催她原谅。" },
+  { icon:"💐", title:"一束她会喜欢的花", when:"适合：纪念日被忽略、缺少重视感，或关系修复后表达在意。", do:"选她喜欢的花或颜色，附一句具体的话：“这束花不是替代道歉，是想让你知道我记得你喜欢洋桔梗。”", avoid:"如果她不喜欢花、对花粉敏感，或曾说过不想收到，就不要送。" },
+  { icon:"🍜", title:"一顿熟悉的饭", when:"适合：她疲惫、压力累积，真正需要的是被照顾和减轻负担。", do:"做或买她舒服时会吃的东西，同时主动接手一件具体家务。", avoid:"不要边照顾边要求她马上开心起来。" },
+  { icon:"🚶", title:"一次没有任务的散步", when:"适合：两个人面对面容易紧张，但并肩走路更容易开口。", do:"先约二十分钟，只听感受，不在散步中逼着达成结论。", avoid:"不要把散步变成移动的批评会议。" },
+  { icon:"🗓️", title:"兑现一个小承诺", when:"适合：同类冲突反复发生，语言已经不再有说服力。", do:"把改变写得可观察：每天晚饭后二十分钟不看手机；迟到提前告知。连续做到，而不是只做一天。", avoid:"不要承诺“以后再也不会”，要承诺你真正做得到的事。" },
+  { icon:"📷", title:"重访一个共同记忆", when:"适合：关系已恢复安全，需要重新积累“我们是一队”的感觉。", do:"一起看一张照片、回到熟悉的小店，聊聊当时彼此欣赏的地方。", avoid:"不要在冲突未处理时，用怀旧跳过对方的受伤。" },
+];
+
 const dictionary = [
   ["委屈", "付出或心意没有被看见", "语气变硬、反复讲同一件事、掉眼泪", "被理解、被公平对待", "先承认：这件事让你很不好受。"],
   ["失望", "期待落空后的难过", "冷下来、说“算了”、减少期待", "可靠、被重视", "问问她原本期待发生什么。"],
@@ -224,8 +242,8 @@ function Home({ begin, go }: { begin: () => void; go: (v: View) => void }) {
       <div className="eyebrow"><Sparkles size={14}/> 一本安静的关系练习册</div>
       <h1>很多关系，<br/>不是输给了冲突。<br/><em>而是输给了不会回应。</em></h1>
       <p>当你不知道如何回应爱的人时，<br className="mobile-br"/>让我们一步一步陪你。</p>
-      <button className="primary large" onClick={begin}>描述刚刚发生的事 <ArrowRight size={17}/></button>
-      <div className="scroll-cue"><span>先不用急着解决</span><i/></div>
+      <button className="primary large" onClick={begin}>她正在生气，马上用 <ArrowRight size={17}/></button>
+      <div className="scroll-cue"><span>30 秒找到现在该做的事</span><i/></div>
     </section>
     <section className="principles page-width">
       {[ ["❤️","先连接，再解决。","先让彼此重新站在一起。"], ["👂","先理解，再解释。","被听见之后，解释才有入口。"], ["🤝","情绪稳定以后，问题才容易解决。","慢一点，反而更靠近答案。"] ].map((p,i)=><motion.article initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*.1}} key={p[1]}><span>{p[0]}</span><h3>{p[1]}</h3><p>{p[2]}</p></motion.article>)}
@@ -243,19 +261,30 @@ function Home({ begin, go }: { begin: () => void; go: (v: View) => void }) {
 }
 
 function QuickCoach({ scenario, setScenario, conflictType, setConflictType, analyzed, analyze, deep }: any) {
+  const [liveState, setLiveState] = useState("loud");
+  const [copied, setCopied] = useState(false);
   const current = conflictTypes.find(type => type.id === conflictType) || conflictTypes[0];
+  const live = liveStates.find(state => state.id === liveState) || liveStates[0];
   const examples = [
     "我一直在看手机，她说我根本不在乎她，然后哭了",
     "她说了好几遍，我还是一直解释，她声音越来越大",
     "我们吵架后我想出门，她说算了，你走吧",
   ];
   return <motion.section className="quick-page page-width" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
-    <div className="quick-intro">
-      <span className="eyebrow"><Sparkles size={14}/> 情境急救卡</span>
-      <h1>刚刚具体发生了什么？</h1>
-      <p>像讲给一个了解你的人那样写下来。尽量包括：发生了什么、她说了什么、你做了什么。</p>
+    <div className="quick-intro live-intro">
+      <span className="eyebrow"><Sparkles size={14}/> 此刻模式 · 不用阅读长内容</span>
+      <h1>她现在还在生气吗？</h1>
+      <p>先选最接近的现场。你只需要照着做第一张卡，其他事情等会儿再想。</p>
     </div>
-    <div className="scenario-box">
+    <div className="live-state-grid">{liveStates.map(state => <button key={state.id} className={liveState===state.id?"active":""} onClick={()=>setLiveState(state.id)}><span>{state.icon}</span>{state.label}</button>)}</div>
+    <motion.div key={live.id} className="now-card" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}>
+      <header><span>现在，只做这三件事</span><small>大约 30 秒</small></header>
+      <div className="now-steps"><article><i>1</i><small>身体先做</small><p>{live.action}</p></article><article className="say-now"><i>2</i><small>只说这一句</small><p>“{live.words}”</p><button onClick={()=>{navigator.clipboard?.writeText(live.words);setCopied(true);setTimeout(()=>setCopied(false),1500)}}>{copied?<Check size={14}/>:<Quote size={14}/>} {copied?"已复制":"复制这句话"}</button></article><article className="avoid-now"><i>3</i><small>此刻不要</small><p>{live.avoid}</p></article></div>
+      <div className="now-footer"><Pause size={15}/><span>说完后停十秒。不要为了消除自己的不安，马上继续解释。</span></div>
+    </motion.div>
+
+    <div className="after-divider"><span>她稍微平静以后</span><p>再用具体情境判断：这次冲突真正需要修复什么。</p></div>
+    <div className="scenario-box compact">
       <textarea value={scenario} onChange={e => {setScenario(e.target.value);}} placeholder="例如：晚饭时我一直在看手机。她说我根本不在乎她，然后哭了。我解释说是在处理工作，她更生气了……" aria-label="描述具体发生的情况"/>
       <div className="scenario-bottom"><small>{scenario.length} 字 · 不需要写得完整</small><button className="primary" onClick={analyze} disabled={scenario.trim().length < 6}>帮我理清楚 <ArrowRight size={16}/></button></div>
     </div>
@@ -279,6 +308,12 @@ function QuickCoach({ scenario, setScenario, conflictType, setConflictType, anal
       <div className="safety-note"><span>如果现场有威胁、伤害、强迫或失控风险</span><p>优先保证双方安全、拉开距离并联系可信任的人或当地紧急支持。沟通技巧不能代替安全措施。</p></div>
       <div className="quick-end"><button className="secondary" onClick={()=>{setScenario(""); document.querySelector("main")?.scrollIntoView({behavior:"smooth"})}}><RotateCcw size={15}/> 分析另一个情境</button><button className="text-button" onClick={deep}>想更深入地练习八个步骤 <ArrowRight size={15}/></button></div>
     </motion.div>}</AnimatePresence>
+
+    <section className="repair-gestures">
+      <div className="repair-heading"><span className="eyebrow"><Heart size={14}/> 冲突过去以后</span><h2>稳固关系，靠的是“小而准确”的在意</h2><p>礼物不是交换原谅。先道歉、先修正行为，再用她真正喜欢的方式表达：我记得你，也愿意为我们花心思。</p></div>
+      <div className="gesture-grid">{repairGestures.map(gesture => <article key={gesture.title}><span>{gesture.icon}</span><h3>{gesture.title}</h3><dl><div><dt>什么时候适合</dt><dd>{gesture.when.replace("适合：","")}</dd></div><div><dt>怎么做更有效</dt><dd>{gesture.do}</dd></div><div className="gesture-avoid"><dt>不要这样做</dt><dd>{gesture.avoid}</dd></div></dl></article>)}</div>
+      <div className="gift-rule"><HeartHandshake size={21}/><div><b>最有效的组合</b><p><strong>真诚承认</strong>＋<strong>一个她喜欢的小行动</strong>＋<strong>持续兑现的改变</strong></p></div></div>
+    </section>
   </motion.section>;
 }
 
