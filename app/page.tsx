@@ -3,7 +3,7 @@ import { RelationshipCoach } from "./relationship-coach";
 
 export const metadata: Metadata = {
   title: "拆弹行动｜先连接，再解决",
-  description: "一本陪你练习情绪识别、温柔回应与关系修复的关系练习册。",
+  description: "当你不知道如何回应爱的人时，让我们一步一步陪你。",
 };
 
 export default function Home() {
