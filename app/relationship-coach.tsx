@@ -144,7 +144,7 @@ const dictionary = [
 function Brand({ compact = false }: { compact?: boolean }) {
   return <button className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="回到顶部">
     <span className="brand-mark"><HeartHandshake size={19} strokeWidth={1.7}/></span>
-    <span><b>先连接，再解决</b>{!compact && <small>Connection First</small>}</span>
+    <span><b>拆弹行动</b>{!compact && <small>先连接，再解决</small>}</span>
   </button>;
 }
 
