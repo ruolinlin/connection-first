@@ -152,6 +152,68 @@ const flowExtras: Record<string, { goal:string; avoid:string; still:string; repa
   pressure: { goal:"先降低刺激和身体压力，一次只处理一件事。", avoid:"这么点小事有什么好生气的。", still:"我们现在不用解决所有事情。先停一下，等身体慢下来，再选最重要的一件谈。", repair:"分担一个具体任务，并在第二天回顾这次爆发前的早期信号。" },
 };
 
+const conflictAnalysis: Record<string, {
+  situation: string;
+  causes: string[];
+  userState: string;
+  otherState: string;
+  body: string[];
+  words: string[];
+  actions: string[];
+}> = {
+  unheard: {
+    situation: "双方正在重复表达立场，但重要的感受还没有被听见。",
+    causes: ["回应太快，理解还没发生就开始解释", "双方都在证明自己没有错", "旧问题被带进了眼前这次对话"],
+    userState: "你可能很想解释清楚，也可能觉得自己被误解。",
+    otherState: "TA可能感到委屈、挫败，正在用更强烈的方式争取被听见。",
+    body: ["先停止继续组织反驳", "肩膀放松，身体朝向TA", "把音量降低一档，语速放慢"],
+    words: ["对不起，我刚才一直在解释，没有先听你。", "你最希望我先听懂的是哪一件事？"],
+    actions: ["把手机放下，完整听完一分钟", "复述你听到的重点，请TA纠正", "一次只谈这一件事，不翻旧账"],
+  },
+  neglected: {
+    situation: "冲突表面是某件小事，核心可能是TA感到自己没有被放在心上。",
+    causes: ["期待没有被说清或没有被回应", "忙碌、失约或注意力分散造成累积失落", "道歉停留在语言，没有出现可见的改变"],
+    userState: "你可能觉得自己已经很努力，或不理解为什么这件事这么严重。",
+    otherState: "TA可能失望、委屈，并担心自己在关系里不重要。",
+    body: ["停下手里的事，真正转向TA", "保持自然眼神，不边听边看手机", "先点头确认，不用苦笑化解尴尬"],
+    words: ["对不起，这件事让你觉得自己没有被重视。", "我先不解释。你原本希望我怎么做？"],
+    actions: ["指出一个你愿意立即补救的具体行为", "把重要约定写进日程并兑现", "事后用一件符合TA偏好的小行动表达重视"],
+  },
+  unsafe: {
+    situation: "眼前的冲突可能触发了对失去关系、被抛下或突然失联的担心。",
+    causes: ["一方突然离开、沉默或提到分开", "过去的冷战或失联经验被再次触发", "暂停没有说明时间，让距离感被放大"],
+    userState: "你可能想逃离现场，或者害怕说得越多错得越多。",
+    otherState: "TA可能焦虑、害怕，用追问、哭泣或强烈表达确认关系还在不在。",
+    body: ["保持可见、稳定的姿态，不突然转身离开", "呼气比吸气稍长，先稳住自己的身体", "如果TA接受，保持合适距离陪在现场"],
+    words: ["对不起，我刚才的反应让你更没有安全感。", "我不会突然消失。需要暂停的话，我会告诉你什么时候回来。"],
+    actions: ["给出明确、能做到的返回时间", "暂停期间不拉黑、不失联、不发刺激性信息", "回来后先确认关系，再讨论事件"],
+  },
+  boundary: {
+    situation: "冲突中可能出现了打断、逼迫、讽刺、控制或其他越过边界的行为。",
+    causes: ["急于获得回应，忽略了TA是否愿意继续", "把情绪当成攻击，开始反击或贬低", "双方对隐私、空间或说话方式的边界不同"],
+    userState: "你可能感到被拒绝、被挑战，想立刻得到答案。",
+    otherState: "TA可能愤怒、害怕或羞耻，需要重新获得选择权和尊重。",
+    body: ["立刻停止靠近、挡路或持续追问", "双手保持自然可见，给TA足够空间", "不用眼神逼迫TA马上回应"],
+    words: ["对不起，我刚才越过了你的边界。", "我先停下来。你可以决定什么时候、用什么方式继续。"],
+    actions: ["停止当前越界行为，不附带条件", "允许TA离开或联系可信任的人", "之后明确商量双方都能接受的边界"],
+  },
+  pressure: {
+    situation: "这次爆发可能不只来自眼前的小事，而是疲惫和压力累积后的溢出。",
+    causes: ["睡眠不足、工作或家庭任务长期堆积", "双方都在高负荷状态下讨论复杂问题", "早期的不舒服没有被说出，直到一次性爆发"],
+    userState: "你可能也很累，只想尽快结束或解决全部问题。",
+    otherState: "TA可能已经超负荷，暂时没有能力处理更多信息。",
+    body: ["先把手里的动作停下来，坐稳或站稳", "放松下颌和双手，做三次延长呼气", "减少声音、灯光和持续追问等刺激"],
+    words: ["对不起，我没有早点看见你已经撑得很辛苦。", "我们现在不用解决所有事情，先让身体缓下来。"],
+    actions: ["先暂停二十分钟，并约定回来时间", "主动分担一个最具体的现实任务", "平静后只选最重要的一件事讨论"],
+  },
+};
+
+const descriptionExamples = [
+  "TA觉得我一直看手机，没有认真听，然后声音越来越大。",
+  "TA哭着说算了，转身走了，我不知道要不要追。",
+  "我们为了家务反复争吵，两个人都很累，越说越激动。",
+];
+
 const pauseSignals = [
   "双方已经无法听完对方说话",
   "音量持续升高",
@@ -277,13 +339,13 @@ function Home({ begin, go, openCalm }: { begin: () => void; go: (v: View) => voi
   return <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
     <section className="hero action-hero">
       <div className="eyebrow"><Sparkles size={14}/> 拆弹行动 · 冲突处理引导</div>
-      <h1>不知道现在该说什么？<br/><em>先判断，再行动。</em></h1>
-      <p>你不需要读完整个网站。选择最接近的情况，我们会一步一步告诉你：怎么说、是否暂停、接下来怎么做。</p>
+      <h1>把刚刚发生的事告诉我。<br/><em>先判断，再行动。</em></h1>
+      <p>不用先学会判断冲突类型。描述TA说了什么、做了什么，我们会帮你识别情况，并给出身体、语言和行动支持。</p>
       <div className="hero-actions"><button className="primary large" onClick={begin}>开始判断当前冲突 <ArrowRight size={17}/></button><button className="secondary large" onClick={openCalm}>我需要先冷静一下</button></div>
       <small className="hero-assurance">每个页面只完成一个任务，随时可以返回修改选择。</small>
     </section>
     <section className="start-flow page-width" aria-label="使用步骤">
-      {[ ["01","判断冲突情况","选择最接近的情境"], ["02","获得对应话术","直接照着说或复制"], ["03","判断是否暂停","避免继续升级冲突"], ["04","缓和关系","决定下一步行动"] ].map(item=><article key={item[0]}><span>{item[0]}</span><div><b>{item[1]}</b><p>{item[2]}</p></div></article>)}
+      {[ ["01","描述发生了什么","不用自己判断类型"], ["02","获得三类支持","身体、语言、行动"], ["03","判断是否暂停","避免继续升级冲突"], ["04","缓和关系","决定下一步行动"] ].map(item=><article key={item[0]}><span>{item[0]}</span><div><b>{item[1]}</b><p>{item[2]}</p></div></article>)}
     </section>
     <section className="start-note page-width"><HeartHandshake size={22}/><div><b>不是要求你一次学会所有方法。</b><p>先处理眼前这一刻。冲突平静以后，再回来看情绪词典和关系练习册。</p></div></section>
     <section className="home-modules page-width"><button onClick={() => go("dictionary")}><BookOpen/><span><b>{c("NAV-05")}</b><small>{c("HOME-17")}</small></span><ChevronRight/></button><button onClick={() => go("journal")}><PencilLine/><span><b>{c("NAV-06")}</b><small>{c("HOME-18")}</small></span><ChevronRight/></button></section>
@@ -294,31 +356,60 @@ function QuickCoach({ conflictType, setConflictType, openCalm, openSafety }: any
   const [flowStep, setFlowStep] = useState(0);
   const [pauseChecks, setPauseChecks] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
+  const [description, setDescription] = useState("");
+  const [analyzed, setAnalyzed] = useState(false);
   const current = conflictTypes.find(type => type.id === conflictType) || conflictTypes[0];
   const extra = flowExtras[current.id];
+  const analysis = conflictAnalysis[current.id];
   const repair = repairGestures[Math.max(0, conflictTypes.findIndex(type => type.id === current.id))];
   const pauseRecommended = pauseChecks.length >= 2;
-  const safetyRisk = pauseChecks.includes("继续交流可能造成安全风险");
+  const descriptionSafetyRisk = /打人|掐|推搡|威胁|刀|武器|不让我走|锁门|自杀|自伤|杀/.test(description);
+  const safetyRisk = pauseChecks.includes("继续交流可能造成安全风险") || descriptionSafetyRisk;
   const togglePause = (item: string) => setPauseChecks(list => list.includes(item) ? list.filter(value => value !== item) : [...list, item]);
   const move = (nextStep: number) => { setFlowStep(nextStep); window.scrollTo({ top: 0, behavior: "smooth" }); };
-  const copyWords = () => { navigator.clipboard?.writeText(current.opening); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const copyWords = () => { navigator.clipboard?.writeText(analysis.words.join("\n")); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const analyzeDescription = () => {
+    const normalized = description.trim().toLowerCase();
+    const ranked = conflictTypes.map((type, index) => ({
+      id: type.id,
+      index,
+      score: type.signals.reduce((score, signal) => score + (normalized.includes(signal.toLowerCase()) ? 1 : 0), 0),
+    })).sort((a, b) => b.score - a.score || a.index - b.index);
+    setConflictType(ranked[0].score > 0 ? ranked[0].id : "pressure");
+    setAnalyzed(true);
+    setTimeout(() => document.getElementById("analysis-result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  };
+  const chooseType = (id: string) => { setConflictType(id); setAnalyzed(true); };
 
   return <motion.section className="guided-page page-width" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
     <div className="flow-progress"><div><span style={{width: ((flowStep + 1) * 25) + "%"}}/></div><small>步骤 {flowStep + 1} / 4</small></div>
 
     {flowStep === 0 && <div className="flow-panel">
-      <header className="flow-heading"><span>第一步</span><h1>现在更接近哪一种情况？</h1><p>不需要判断得完全准确。选择最接近的一项，之后可以返回修改。</p></header>
-      <div className="conflict-choice-grid">{conflictTypes.map(type => <button key={type.id} onClick={() => setConflictType(type.id)} className={conflictType === type.id ? "selected" : ""} aria-pressed={conflictType === type.id}><span>{type.icon}</span><div><b>{type.label}</b><p>{type.hint}</p><small>当前目标：{flowExtras[type.id].goal}</small></div><i>{conflictType === type.id && <Check size={15}/>}</i></button>)}</div>
+      <header className="flow-heading"><span>第一步</span><h1>刚刚发生了什么？</h1><p>不用判断原因，也不用写得完整。像告诉朋友一样，写下TA做了什么、说了什么，以及你做了什么。</p></header>
+      <div className="describe-card">
+        <label htmlFor="conflict-description">描述这次冲突</label>
+        <textarea id="conflict-description" value={description} onChange={event => { setDescription(event.target.value); setAnalyzed(false); }} placeholder="例如：TA觉得我一直看手机，没有认真听。TA提高了声音，我开始解释，然后我们越说越激动……" />
+        <div className="describe-footer"><small>建议写 1—5 句话，不需要提供姓名或隐私信息。</small><button className="primary" disabled={!description.trim()} onClick={analyzeDescription}>帮我判断现在的情况 <ArrowRight size={16}/></button></div>
+      </div>
+      <div className="description-examples"><span>不知道怎么写？试试</span>{descriptionExamples.map(example => <button key={example} onClick={() => { setDescription(example); setAnalyzed(false); }}>{example}</button>)}</div>
+      {analyzed && <motion.div id="analysis-result" className="analysis-result" initial={{opacity:0,y:10}} animate={{opacity:1,y:0}}>
+        <header><span>{current.icon}</span><div><small>根据描述，初步识别为</small><h2>{current.label}</h2><p>{analysis.situation}</p></div></header>
+        <div className="analysis-grid"><article><small>可能的原因</small><ul>{analysis.causes.map(item => <li key={item}>{item}</li>)}</ul></article><article><small>你可能正在经历</small><p>{analysis.userState}</p></article><article><small>TA可能正在经历</small><p>{analysis.otherState}</p></article></div>
+        <div className="analysis-note"><Info size={16}/><p>这是根据文字线索做的初步判断，不代表TA的真实想法。接下来可以用简短的话向TA确认。</p></div>
+        <div className="analysis-correction"><span>感觉不准确？可以改成</span><div>{conflictTypes.map(type => <button key={type.id} onClick={() => chooseType(type.id)} className={current.id === type.id ? "active" : ""}>{type.icon} {type.label}</button>)}</div></div>
+        {descriptionSafetyRisk && <button className="inline-safety" onClick={openSafety}>描述中可能涉及安全风险，先查看安全提示 <ArrowRight size={15}/></button>}
+      </motion.div>}
     </div>}
 
     {flowStep === 1 && <div className="flow-panel">
-      <header className="flow-heading"><span>第二步 · {current.icon} {current.label}</span><h1>现在可以怎么说？</h1><p>先使用一两句短话，不要一次背完整段内容。</p></header>
-      <div className="speech-result">
-        <section className="speech-goal"><small>当前沟通目标</small><b>{extra.goal}</b></section>
-        <section className="direct-words"><small>可以直接说</small><blockquote>{current.opening}</blockquote><button onClick={copyWords}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制这句话"}</button></section>
-        <div className="speech-details"><article><small>什么时候使用</small><p>{current.hint}</p></article><article><small>为什么这样说</small><p>{current.first[1]}</p></article><article className="avoid"><small>避免这样说</small><p>“{extra.avoid}”</p></article><article><small>如果TA仍然很激动</small><p>“{extra.still}”</p></article></div>
-        <section className="continue-steps"><small>如果TA愿意继续</small><ol>{current.next.map((item, index) => <li key={item}><span>{index + 1}</span>{item}</li>)}</ol></section>
+      <header className="flow-heading"><span>第二步 · {current.icon} {current.label}</span><h1>现在，照着这三步做</h1><p>先调整身体，再说短句，最后做一个具体行动。不要一次解释完整件事。</p></header>
+      <section className="support-goal"><small>当前目标</small><b>{extra.goal}</b></section>
+      <div className="support-grid">
+        <article className="body-support"><header><span>01</span><i>🫁</i></header><small>身体支持</small><h2>先让你的状态降下来</h2><ol>{analysis.body.map((item, index) => <li key={item}><span>{index + 1}</span>{item}</li>)}</ol><button className="text-button" onClick={openCalm}>需要更多冷静方法 <ArrowRight size={14}/></button></article>
+        <article className="word-support"><header><span>02</span><i>💬</i></header><small>语言支持</small><h2>短一点，先道歉再确认</h2><div className="word-script">{analysis.words.map(item => <blockquote key={item}>“{item}”</blockquote>)}</div><button onClick={copyWords}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制这两句"}</button></article>
+        <article className="action-support"><header><span>03</span><i>🤲</i></header><small>行动支持</small><h2>让TA看见一个具体改变</h2><ol>{analysis.actions.map((item, index) => <li key={item}><span>{index + 1}</span>{item}</li>)}</ol></article>
       </div>
+      <div className="support-avoid"><X size={17}/><div><small>现在先不要说</small><p>“{extra.avoid}”</p><span>如果TA仍然很激动： “{extra.still}”</span></div></div>
     </div>}
 
     {flowStep === 2 && <div className="flow-panel">
@@ -342,7 +433,7 @@ function QuickCoach({ conflictType, setConflictType, openCalm, openSafety }: any
       <div className="third-party"><Info size={18}/><p>如果反复出现威胁、控制、身体冲突，或双方一直无法恢复安全沟通，请优先寻求可信任的人、伴侣咨询或其他现实支持。</p></div>
     </div>}
 
-    <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep < 3 ? <button className="primary" onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
+    <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep < 3 ? <button className="primary" disabled={flowStep === 0 && !analyzed} onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); setDescription(""); setAnalyzed(false); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
   </motion.section>;
 }
 
