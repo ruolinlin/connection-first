@@ -144,6 +144,42 @@ const dictionary = [
   ["安心", c("EMO-10-1"), c("EMO-10-2"), c("EMO-10-3"), c("EMO-10-4")],
 ];
 
+const flowExtras: Record<string, { goal:string; avoid:string; still:string; repair:string }> = {
+  unheard: { goal:"停止重复争论，让双方重新听见彼此。", avoid:"你每次都是这样，根本没办法沟通。", still:"我愿意继续谈，但我们现在可能都需要先缓一下。等我们能够比较平静地说话时再继续。", repair:"先复述你听见的重点，再确认有没有遗漏。" },
+  neglected: { goal:"让TA重新感受到被重视，并看到一个具体补救。", avoid:"我这么忙还不是为了我们，你别想太多。", still:"我知道现在解释只会让你更难受。我先停下来，等你愿意时，我想听听你原本期待我怎么做。", repair:"为具体行为道歉，并约定一个可以观察到的改变。" },
+  unsafe: { goal:"先稳定关系安全感，再处理眼前的问题。", avoid:"你再这样，我们就别谈了。", still:"我没有要消失，也没有要放弃我们。我需要先缓二十分钟，之后会回来继续。", repair:"确认彼此不会突然失联，并共同约定下一次暂停的方式。" },
+  boundary: { goal:"立即停止越界行为，把选择权还给对方。", avoid:"你太敏感了，我又没有什么意思。", still:"我先停下来，不继续逼你回应。你可以决定什么时候、用什么方式继续谈。", repair:"明确承认越界的具体行为，并形成双方都同意的边界。" },
+  pressure: { goal:"先降低刺激和身体压力，一次只处理一件事。", avoid:"这么点小事有什么好生气的。", still:"我们现在不用解决所有事情。先停一下，等身体慢下来，再选最重要的一件谈。", repair:"分担一个具体任务，并在第二天回顾这次爆发前的早期信号。" },
+};
+
+const pauseSignals = [
+  "双方已经无法听完对方说话",
+  "音量持续升高",
+  "出现侮辱、威胁或攻击性表达",
+  "身体发抖、心跳加快或无法思考",
+  "对话开始重复，没有新的信息",
+  "一方已经明确表示不想继续",
+  "继续交流可能造成安全风险",
+];
+
+const calmMethods = {
+  outside: [
+    ["延长呼气","缓慢吸气，再用更长的时间呼气。重复三轮。","约 30 秒","不要追求用力深呼吸。"],
+    ["感官定位","找出看到的三个物体、听到的两个声音、身体的一个接触点。","约 1 分钟","只描述事实，不分析冲突。"],
+    ["脚底压力","感受双脚接触地面，轻轻向下用力，再慢慢放松。","约 30 秒","保持自然，不需要让别人注意。"],
+    ["暂时移开视线","看向一个中性的固定物体，减少持续刺激。","约 20 秒","不是翻白眼或故意无视对方。"],
+    ["内部提示","在心里重复：我现在不需要立刻回答。","约 10 秒","先让身体慢下来，再决定怎么说。"],
+  ],
+  home: [
+    ["改变空间","暂时离开发生冲突的房间，去安全、安静的空间。","20—30 分钟","先说明什么时候回来。"],
+    ["冷水刺激","用凉水清洗面部或手部，把注意力带回身体。","约 30 秒","水温保持舒适，不使用冰水。"],
+    ["缓慢活动","低强度走动、伸展或整理物品，释放身体紧张。","5—10 分钟","不要开车、剧烈运动或摔东西。"],
+    ["先写，不发送","把想说的话写下来，但暂时不要发送或交给对方。","5 分钟","等平静后重新阅读。"],
+    ["设置暂停计时","设定二十或三十分钟，并按约定回来。","20—30 分钟","暂停不能变成无限期失联。"],
+    ["身体扫描","依次放松下颌、肩膀、双手和腹部。","约 2 分钟","只观察，不批评自己的反应。"],
+  ],
+};
+
 function Brand({ compact = false }: { compact?: boolean }) {
   return <button className="brand" onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} aria-label="回到顶部">
     <span className="brand-mark"><HeartHandshake size={19} strokeWidth={1.7}/></span>
@@ -167,11 +203,11 @@ export function RelationshipCoach() {
   const [customPhrase, setCustomPhrase] = useState("");
   const [dark, setDark] = useState(false);
   const [menu, setMenu] = useState(false);
+  const [calmOpen, setCalmOpen] = useState(false);
+  const [safetyOpen, setSafetyOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [saved, setSaved] = useState(false);
-  const [scenario, setScenario] = useState("");
   const [conflictType, setConflictType] = useState("unheard");
-  const [analyzed, setAnalyzed] = useState(false);
   const [journal, setJournal] = useState({ heard: "", defense: "", redo: "" });
 
   useEffect(() => {
@@ -191,14 +227,7 @@ export function RelationshipCoach() {
   });
   const go = (target: View) => { setView(target); setMenu(false); window.scrollTo({ top: 0, behavior: "smooth" }); };
   const begin = () => { setStep(0); go("practice"); };
-  const quickStart = () => { setAnalyzed(false); go("quick"); };
-  const analyzeScenario = () => {
-    const ranked = conflictTypes.map(type => ({ type, score: type.signals.filter(word => scenario.includes(word)).length }));
-    ranked.sort((a, b) => b.score - a.score);
-    setConflictType(ranked[0].score > 0 ? ranked[0].type.id : "unheard");
-    setAnalyzed(true);
-    setTimeout(() => document.getElementById("quick-result")?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
-  };
+  const quickStart = () => go("quick");
   const next = () => { if (step < 7) { setStep(step + 1); window.scrollTo({ top: 0, behavior: "smooth" }); } else go("journal"); };
   const previous = () => { if (step > 0) setStep(step - 1); else go("home"); };
   const activeTranslation = translations[phrase] || ["这句话可能在保护一种还没准备好说出的感受。", "TA也许希望你先停下来，确认TA此刻的体验。", "比起猜测，更重要的是温和地向TA确认。"];
@@ -214,7 +243,8 @@ export function RelationshipCoach() {
       <Brand compact />
       <nav className="desktop-nav" aria-label="主导航">
         <button onClick={() => go("home")} className={view === "home" ? "active" : ""}>{c("NAV-03")}</button>
-        <button onClick={quickStart} className={view === "quick" ? "active" : ""}>{c("NAV-04")}</button>
+        <button onClick={quickStart} className={view === "quick" ? "active" : ""}>开始判断</button>
+        <button onClick={() => setCalmOpen(true)}>快速冷静</button>
         <button onClick={() => go("dictionary")} className={view === "dictionary" ? "active" : ""}>{c("NAV-05")}</button>
         <button onClick={() => go("journal")} className={view === "journal" ? "active" : ""}>{c("NAV-06")}</button>
       </nav>
@@ -223,123 +253,111 @@ export function RelationshipCoach() {
         <button className="icon-button mobile-menu" onClick={() => setMenu(!menu)} aria-label="打开导航">{menu ? <X size={20}/> : <Menu size={20}/>}</button>
       </div>
       <AnimatePresence>{menu && <motion.nav initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} className="mobile-nav">
-        <button onClick={() => go("home")}>{c("NAV-03")}</button><button onClick={quickStart}>{c("NAV-04")}</button><button onClick={() => go("dictionary")}>{c("NAV-05")}</button><button onClick={() => go("journal")}>{c("NAV-06")}</button>
+        <button onClick={() => go("home")}>{c("NAV-03")}</button><button onClick={quickStart}>开始判断</button><button onClick={() => setCalmOpen(true)}>快速冷静</button><button onClick={() => go("dictionary")}>{c("NAV-05")}</button><button onClick={() => go("journal")}>{c("NAV-06")}</button>
       </motion.nav>}</AnimatePresence>
     </header>
 
     <main>
       <AnimatePresence mode="wait">
-        {view === "home" && <Home key="home" begin={quickStart} go={go}/>} 
-        {view === "quick" && <QuickCoach key="quick" scenario={scenario} setScenario={setScenario} conflictType={conflictType} setConflictType={setConflictType} analyzed={analyzed} analyze={analyzeScenario} deep={begin}/>} 
+        {view === "home" && <Home key="home" begin={quickStart} go={go} openCalm={() => setCalmOpen(true)}/>} 
+        {view === "quick" && <QuickCoach key="quick" conflictType={conflictType} setConflictType={setConflictType} openCalm={() => setCalmOpen(true)} openSafety={() => setSafetyOpen(true)}/>} 
         {view === "practice" && <Practice key={`practice-${step}`} step={step} setStep={setStep} selected={selected} choose={choose} phrase={phrase} setPhrase={setPhrase} customPhrase={customPhrase} setCustomPhrase={setCustomPhrase} activeTranslation={activeTranslation} previous={previous} next={next}/>} 
         {view === "dictionary" && <Dictionary key="dictionary" search={search} setSearch={setSearch} items={filteredDictionary}/>} 
         {view === "journal" && <Journal key="journal" journal={journal} setJournal={setJournal} save={saveJournal} saved={saved} begin={begin}/>} 
       </AnimatePresence>
     </main>
+    <div className="fixed-tools"><button onClick={() => setCalmOpen(true)}>快速冷静</button><button className="safety" onClick={() => setSafetyOpen(true)}>我是否处于危险中</button></div>
+    <AnimatePresence>{calmOpen && <CalmOverlay close={() => setCalmOpen(false)}/>}</AnimatePresence>
+    <AnimatePresence>{safetyOpen && <SafetyOverlay close={() => setSafetyOpen(false)}/>}</AnimatePresence>
     <footer><Brand/><p>{c("HOME-19")}</p><span>{c("HOME-20")}</span></footer>
   </div>;
 }
 
-function Home({ begin, go }: { begin: () => void; go: (v: View) => void }) {
+function Home({ begin, go, openCalm }: { begin: () => void; go: (v: View) => void; openCalm: () => void }) {
   return <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}}>
-    <section className="hero">
-      <div className="eyebrow"><Sparkles size={14}/> {c("HOME-01")}</div>
-      <h1>{c("HOME-02")}<br/><em>{c("HOME-03")}</em></h1>
-      <p>{c("HOME-04")}</p>
-      <button className="primary large" onClick={begin}>{c("HOME-05")} <ArrowRight size={17}/></button>
-      <div className="scroll-cue"><span>{c("HOME-06")}</span><i/></div>
+    <section className="hero action-hero">
+      <div className="eyebrow"><Sparkles size={14}/> 拆弹行动 · 冲突处理引导</div>
+      <h1>不知道现在该说什么？<br/><em>先判断，再行动。</em></h1>
+      <p>你不需要读完整个网站。选择最接近的情况，我们会一步一步告诉你：怎么说、是否暂停、接下来怎么做。</p>
+      <div className="hero-actions"><button className="primary large" onClick={begin}>开始判断当前冲突 <ArrowRight size={17}/></button><button className="secondary large" onClick={openCalm}>我需要先冷静一下</button></div>
+      <small className="hero-assurance">每个页面只完成一个任务，随时可以返回修改选择。</small>
     </section>
-    <section className="principles page-width">
-      {[ ["❤️",c("HOME-07"),c("HOME-08")], ["👂",c("HOME-09"),c("HOME-10")], ["🤝",c("HOME-11"),c("HOME-12")] ].map((p,i)=><motion.article initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*.1}} key={p[1]}><span>{p[0]}</span><h3>{p[1]}</h3><p>{p[2]}</p></motion.article>)}
+    <section className="start-flow page-width" aria-label="使用步骤">
+      {[ ["01","判断冲突情况","选择最接近的情境"], ["02","获得对应话术","直接照着说或复制"], ["03","判断是否暂停","避免继续升级冲突"], ["04","缓和关系","决定下一步行动"] ].map(item=><article key={item[0]}><span>{item[0]}</span><div><b>{item[1]}</b><p>{item[2]}</p></div></article>)}
     </section>
-    <section className="path-section page-width">
-      <div className="section-heading"><span>一张情境急救卡</span><h2>{c("HOME-13")}</h2><p>写下具体情况，判断冲突属于哪一类，再得到三组可以马上执行的建议。</p></div>
-      <div className="path-list">{[c("HOME-14"),c("HOME-15"),c("HOME-16")].map((s,i)=><div key={s}><span>0{i+1}</span><b>{s}</b>{i < 2 && <i/>}</div>)}</div>
-    </section>
-    <section className="translator-teaser page-width">
-      <div><span className="kicker">关系翻译器</span><h2>“没事”背后，<br/>也许有很多还没说出口的话。</h2><p>我们不替对方下结论，只帮你看见更多可能，然后温和地确认。</p><button className="text-button" onClick={begin}>分析一个具体情境 <ArrowRight size={16}/></button></div>
-      <div className="quote-stack"><div className="quote-card back"/><div className="quote-card"><Quote size={22}/><small>TA说</small><strong>“算了。”</strong><hr/><small>TA也许在说</small><p>“我担心再说下去，也不会被听见。”</p><span>这只是一种可能</span></div></div>
-    </section>
+    <section className="start-note page-width"><HeartHandshake size={22}/><div><b>不是要求你一次学会所有方法。</b><p>先处理眼前这一刻。冲突平静以后，再回来看情绪词典和关系练习册。</p></div></section>
     <section className="home-modules page-width"><button onClick={() => go("dictionary")}><BookOpen/><span><b>{c("NAV-05")}</b><small>{c("HOME-17")}</small></span><ChevronRight/></button><button onClick={() => go("journal")}><PencilLine/><span><b>{c("NAV-06")}</b><small>{c("HOME-18")}</small></span><ChevronRight/></button></section>
   </motion.div>;
 }
 
-function QuickCoach({ scenario, setScenario, conflictType, setConflictType, analyzed, analyze, deep }: any) {
-  const [liveState, setLiveState] = useState("unhappy");
+function QuickCoach({ conflictType, setConflictType, openCalm, openSafety }: any) {
+  const [flowStep, setFlowStep] = useState(0);
+  const [pauseChecks, setPauseChecks] = useState<string[]>([]);
   const [copied, setCopied] = useState(false);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [secondsLeft, setSecondsLeft] = useState(20 * 60);
-  useEffect(() => {
-    if (!timerRunning || secondsLeft <= 0) return;
-    const timer = window.setInterval(() => setSecondsLeft(value => value - 1), 1000);
-    return () => window.clearInterval(timer);
-  }, [timerRunning, secondsLeft]);
   const current = conflictTypes.find(type => type.id === conflictType) || conflictTypes[0];
-  const live = liveStates.find(state => state.id === liveState) || liveStates[0];
-  const examples = [
-    "我一直在看手机，TA说我根本不在乎TA，然后哭了",
-    "TA说了好几遍，我还是一直解释，TA声音越来越大",
-    "我们吵架后我想出门，TA说算了，你走吧",
-  ];
-  return <motion.section className="quick-page page-width" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
-    <div className="quick-intro live-intro">
-      <span className="eyebrow"><Sparkles size={14}/> {c("LIVE-HEAD-01")}</span>
-      <h1>{c("LIVE-HEAD-02")}</h1>
-      <p>{c("LIVE-HEAD-03")}</p>
-    </div>
-    <div className="live-state-grid">{liveStates.map(state => <button key={state.id} className={liveState===state.id?"active":""} onClick={()=>setLiveState(state.id)}><span>{state.icon}</span>{state.label}</button>)}</div>
-    <motion.div key={live.id} className="now-card" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}>
-      <header><span>现在，只做这三件事</span><small>大约 30 秒</small></header>
-      {live.id==="unhappy" && <div className="apology-first"><span>第一反应</span><strong>先说“对不起”</strong><small>为TA已经受到的影响道歉，不必等到先证明自己有错。</small></div>}
-      <div className="now-steps"><article><i>1</i><small>身体先做</small><p>{live.action}</p></article><article className="say-now"><i>2</i><small>只说这一句</small><p>“{live.words}”</p><button onClick={()=>{navigator.clipboard?.writeText(live.words);setCopied(true);setTimeout(()=>setCopied(false),1500)}}>{copied?<Check size={14}/>:<Quote size={14}/>} {copied?"已复制":"复制这句话"}</button></article><article className="avoid-now"><i>3</i><small>此刻不要</small><p>{live.avoid}</p></article></div>
-      <div className="now-footer"><Pause size={15}/><span>{c("LIVE-FOOT-01")}</span></div>
-    </motion.div>
+  const extra = flowExtras[current.id];
+  const repair = repairGestures[Math.max(0, conflictTypes.findIndex(type => type.id === current.id))];
+  const pauseRecommended = pauseChecks.length >= 2;
+  const safetyRisk = pauseChecks.includes("继续交流可能造成安全风险");
+  const togglePause = (item: string) => setPauseChecks(list => list.includes(item) ? list.filter(value => value !== item) : [...list, item]);
+  const move = (nextStep: number) => { setFlowStep(nextStep); window.scrollTo({ top: 0, behavior: "smooth" }); };
+  const copyWords = () => { navigator.clipboard?.writeText(current.opening); setCopied(true); setTimeout(() => setCopied(false), 1500); };
 
-    <section className="emergency-protocol" aria-labelledby="emergency-title">
-      <header><span>{c("ER-00-01")}</span><h2 id="emergency-title">{c("ER-00-02")}</h2><p>{c("ER-00-03")}</p></header>
-      <div className="danger-check"><b>{c("ER-01-01")}</b><p>{c("ER-01-02")}</p><small>{c("ER-01-03")}</small></div>
-      <div className="protocol-grid">
-        <article><span>01</span><h3>立即停损</h3><p>{c("ER-02-01")}</p><b>{c("ER-02-02")}</b><blockquote>{c("ER-02-03")}</blockquote><small>{c("ER-02-04")}</small></article>
-        <article><span>02</span><h3>降低刺激</h3><p>{c("ER-03-01")}</p><b>{c("ER-03-02")}</b><blockquote>{c("ER-03-03")}</blockquote><small>{c("ER-03-04")}</small></article>
-        <article><span>03</span><h3>明确暂停</h3><p>{c("ER-04-01")}</p><blockquote>{c("ER-04-02")}</blockquote><b>{c("ER-04-03")}</b><small>{c("ER-04-04")}</small></article>
-        <article><span>04</span><h3>按时回来</h3><p>{c("ER-05-01")}</p><b>{c("ER-05-02")}</b><blockquote>{c("ER-05-03")}</blockquote></article>
+  return <motion.section className="guided-page page-width" initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}}>
+    <div className="flow-progress"><div><span style={{width: ((flowStep + 1) * 25) + "%"}}/></div><small>步骤 {flowStep + 1} / 4</small></div>
+
+    {flowStep === 0 && <div className="flow-panel">
+      <header className="flow-heading"><span>第一步</span><h1>现在更接近哪一种情况？</h1><p>不需要判断得完全准确。选择最接近的一项，之后可以返回修改。</p></header>
+      <div className="conflict-choice-grid">{conflictTypes.map(type => <button key={type.id} onClick={() => setConflictType(type.id)} className={conflictType === type.id ? "selected" : ""} aria-pressed={conflictType === type.id}><span>{type.icon}</span><div><b>{type.label}</b><p>{type.hint}</p><small>当前目标：{flowExtras[type.id].goal}</small></div><i>{conflictType === type.id && <Check size={15}/>}</i></button>)}</div>
+    </div>}
+
+    {flowStep === 1 && <div className="flow-panel">
+      <header className="flow-heading"><span>第二步 · {current.icon} {current.label}</span><h1>现在可以怎么说？</h1><p>先使用一两句短话，不要一次背完整段内容。</p></header>
+      <div className="speech-result">
+        <section className="speech-goal"><small>当前沟通目标</small><b>{extra.goal}</b></section>
+        <section className="direct-words"><small>可以直接说</small><blockquote>{current.opening}</blockquote><button onClick={copyWords}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制这句话"}</button></section>
+        <div className="speech-details"><article><small>什么时候使用</small><p>{current.hint}</p></article><article><small>为什么这样说</small><p>{current.first[1]}</p></article><article className="avoid"><small>避免这样说</small><p>“{extra.avoid}”</p></article><article><small>如果TA仍然很激动</small><p>“{extra.still}”</p></article></div>
+        <section className="continue-steps"><small>如果TA愿意继续</small><ol>{current.next.map((item, index) => <li key={item}><span>{index + 1}</span>{item}</li>)}</ol></section>
       </div>
-      <div className="pause-timer"><div><small>20 分钟暂停</small><strong>{String(Math.floor(secondsLeft / 60)).padStart(2,"0")}:{String(secondsLeft % 60).padStart(2,"0")}</strong><p>{secondsLeft === 0 ? "现在适合回来继续聊了吗？" : c("ER-07-01")}</p></div><button className="secondary" onClick={() => { if (secondsLeft === 0) setSecondsLeft(20 * 60); setTimerRunning(value => !value); }}>{secondsLeft === 0 ? "重新计时" : timerRunning ? "暂停计时" : "开始计时"}</button></div>
-      <div className="emergency-strip">{c("ER-07-02")}</div>
-    </section>
+    </div>}
 
-    <div className="after-divider"><span>TA稍微平静以后</span><p>再用具体情境判断：这次冲突真正需要修复什么。</p></div>
-    <div className="scenario-box compact">
-      <textarea value={scenario} onChange={e => {setScenario(e.target.value);}} placeholder="例如：晚饭时我一直在看手机。TA说我根本不在乎TA，然后哭了。我解释说是在处理工作，TA更生气了……" aria-label="描述具体发生的情况"/>
-      <div className="scenario-bottom"><small>{scenario.length} 字 · 不需要写得完整</small><button className="primary" onClick={analyze} disabled={scenario.trim().length < 6}>帮我理清楚 <ArrowRight size={16}/></button></div>
-    </div>
-    {!analyzed && <div className="example-row"><span>也可以从例子开始</span>{examples.map(example => <button key={example} onClick={() => setScenario(example)}>{example}<ChevronRight size={14}/></button>)}</div>}
+    {flowStep === 2 && <div className="flow-panel">
+      <header className="flow-heading"><span>第三步</span><h1>现在还适合继续沟通吗？</h1><p>请选择正在发生的情况。出现多项时，暂停通常比继续解释更有效。</p></header>
+      <div className="pause-checks">{pauseSignals.map(item => <button key={item} onClick={() => togglePause(item)} className={pauseChecks.includes(item) ? "checked" : ""} aria-pressed={pauseChecks.includes(item)}><span>{pauseChecks.includes(item) && <Check size={14}/>}</span>{item}</button>)}</div>
+      <div className={"pause-result " + (pauseRecommended ? "recommend" : "continue")}><header><Pause size={20}/><div><small>判断结果</small><h2>{pauseRecommended ? "建议暂停对话" : "可以谨慎继续"}</h2></div></header>{pauseRecommended ? <><p>现在继续沟通可能让冲突进一步升级。暂停不是逃避，而是让双方恢复基本的思考和倾听能力。</p><blockquote>{c("ER-04-02")}</blockquote><div className="pause-how"><article><b>暂停多久</b><p>建议二十分钟；如果仍然无法思考，可以重新约定明确时间。</p></article><article><b>暂停期间</b><p>不要喝酒、追车、继续微信争吵或找人围攻。可以打开“快速冷静”。</p></article><article><b>如何重新开始</b><p>{c("ER-05-03")}</p></article></div><button className="secondary" onClick={openCalm}>打开快速冷静方法</button></> : <><p>目前仍可能继续沟通，但只处理一个问题，并观察音量、身体反应和对方是否愿意继续。</p><blockquote>{extra.still}</blockquote></>}</div>
+      {safetyRisk && <button className="inline-safety" onClick={openSafety}>这可能涉及安全风险，查看安全提示 <ArrowRight size={15}/></button>}
+    </div>}
 
-    <AnimatePresence>{analyzed && <motion.div id="quick-result" className="quick-result" initial={{opacity:0,y:24}} animate={{opacity:1,y:0}}>
-      <div className="classification">
-        <div><span>{current.icon}</span><div><small>这更像是</small><h2>{current.label}</h2><p>{current.hint}</p></div></div>
-        <label>如果不准确，你可以自己选择</label>
-        <div className="type-pills">{conflictTypes.map(type => <button key={type.id} className={type.id===conflictType?"active":""} onClick={()=>setConflictType(type.id)}><span>{type.icon}</span>{type.label}</button>)}</div>
-        <div className="possibility-note"><Info size={15}/><span>{c("TRANS-01")}</span></div>
-      </div>
+    {flowStep === 3 && <div className="flow-panel">
+      <header className="flow-heading"><span>第四步 · 冲突缓和以后</span><h1>下一步如何缓和关系？</h1><p>先确认双方已经平静，再修复影响和商量下一次怎么做。</p></header>
+      <div className="repair-sequence">{[
+        ["确认状态","双方能够降低音量、听完一句话，没有身体威胁。"],
+        ["回顾事实","简要说清发生了什么，不一次翻完所有旧账。"],
+        ["承认影响",extra.repair],
+        ["表达需要","说明自己的感受和真正重视的事情，不定义对方。"],
+        ["提出方案","提出一个具体、可讨论、能够做到的改变。"],
+        ["确认行动","约定双方接下来各自做什么，以及什么时候检查。"],
+      ].map((item,index)=><article key={item[0]}><span>{index + 1}</span><div><b>{item[0]}</b><p>{item[1]}</p></div></article>)}</div>
+      <div className="matched-repair"><span>{repair.icon}</span><div><small>适合这类冲突的缓和行动</small><h3>{repair.title}</h3><p>{repair.do}</p><b>注意：{repair.avoid}</b></div></div>
+      <div className="third-party"><Info size={18}/><p>如果反复出现威胁、控制、身体冲突，或双方一直无法恢复安全沟通，请优先寻求可信任的人、伴侣咨询或其他现实支持。</p></div>
+    </div>}
 
-      <div className="three-actions">
-        <ActionColumn number="01" tone="calm" icon="🌿" title="先让情绪慢下来" subtitle="目标不是让TA停止生气，而是让这一刻重新安全" items={current.first}/>
-        <ActionColumn number="02" tone="space" icon="🫧" title="帮助TA抽离出来" subtitle="从情绪漩涡，回到身体和眼前的一件事" items={current.out}/>
-        <ActionColumn number="03" tone="next" icon="🧭" title="下一步怎么做" subtitle="只解决一个小问题，不一次翻完所有旧账" items={current.next}/>
-      </div>
-
-      <div className="opening-card"><div><Quote size={19}/><span>现在可以这样开始</span></div><p>“{current.opening}”</p><small>说完先停下来，观察TA是否愿意继续。不要把整段话一次背完。</small></div>
-      <div className="safety-note"><span>{c("LIVE-FOOT-02")}</span><p>{c("LIVE-FOOT-03")}</p></div>
-      <div className="quick-end"><button className="secondary" onClick={()=>{setScenario(""); document.querySelector("main")?.scrollIntoView({behavior:"smooth"})}}><RotateCcw size={15}/> 分析另一个情境</button><button className="text-button" onClick={deep}>想更深入地练习八个步骤 <ArrowRight size={15}/></button></div>
-    </motion.div>}</AnimatePresence>
-
-    <section className="repair-gestures">
-      <div className="repair-heading"><span className="eyebrow"><Heart size={14}/> 冲突过去以后</span><h2>稳固关系，靠的是“小而准确”的在意</h2><p>{c("ER-06-03")}</p></div>
-      <div className="gesture-grid">{repairGestures.map(gesture => <article key={gesture.title}><span>{gesture.icon}</span><h3>{gesture.title}</h3><dl><div><dt>什么时候适合</dt><dd>{gesture.when.replace("适合：","")}</dd></div><div><dt>怎么做更有效</dt><dd>{gesture.do}</dd></div><div className="gesture-avoid"><dt>不要这样做</dt><dd>{gesture.avoid}</dd></div></dl></article>)}</div>
-      <div className="gift-rule"><HeartHandshake size={21}/><div><b>最有效的组合</b><p>{c("REPAIR-RULE")}</p></div></div>
-    </section>
+    <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep < 3 ? <button className="primary" onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
   </motion.section>;
+}
+
+function CalmMethods() {
+  const [place, setPlace] = useState<"outside"|"home">("outside");
+  return <div className="calm-tool"><div className="calm-tabs" role="tablist"><button role="tab" aria-selected={place === "outside"} className={place === "outside" ? "active" : ""} onClick={() => setPlace("outside")}>我在外面</button><button role="tab" aria-selected={place === "home"} className={place === "home" ? "active" : ""} onClick={() => setPlace("home")}>我在家里</button></div><div className="calm-grid">{calmMethods[place].map(method => <article key={method[0]}><h3>{method[0]}</h3><p>{method[1]}</p><div><span>建议时长</span><b>{method[2]}</b></div><small>{method[3]}</small></article>)}</div></div>;
+}
+
+function CalmOverlay({ close }: { close: () => void }) {
+  return <motion.div className="overlay" role="dialog" aria-modal="true" aria-labelledby="calm-title" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={event => { if (event.target === event.currentTarget) close(); }}><motion.section className="overlay-card wide" initial={{scale:.97,y:15}} animate={{scale:1,y:0}}><button className="overlay-close" onClick={close} aria-label="关闭快速冷静"><X size={20}/></button><header><span>随时可以打开</span><h2 id="calm-title">先让身体慢下来</h2><p>选择你现在所在的环境，然后只做一种方法。</p></header><CalmMethods/></motion.section></motion.div>;
+}
+
+function SafetyOverlay({ close }: { close: () => void }) {
+  const risks = ["出现身体伤害或身体威胁","对方限制离开、通讯或求助","存在武器或危险物品","涉及儿童、老人或其他脆弱人员的安全","一方出现自伤、伤人或失控风险","当前环境不适合继续停留"];
+  return <motion.div className="overlay" role="dialog" aria-modal="true" aria-labelledby="safety-title" initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} onMouseDown={event => { if (event.target === event.currentTarget) close(); }}><motion.section className="overlay-card safety-card" initial={{scale:.97,y:15}} animate={{scale:1,y:0}}><button className="overlay-close" onClick={close} aria-label="关闭安全提示"><X size={20}/></button><header><span>安全提示</span><h2 id="safety-title">需要优先关注安全的情况</h2></header><ul>{risks.map(risk => <li key={risk}>{risk}</li>)}</ul><div><b>先离开危险环境并寻求现实支持。</b><p>沟通问题可以在安全得到保障后再处理。此时不要继续优先使用沟通话术，也不要独自处理已经失控的现场。</p></div></motion.section></motion.div>;
 }
 
 function ActionColumn({ number, tone, icon, title, subtitle, items }: {number:string;tone:string;icon:string;title:string;subtitle:string;items:string[]}) {
