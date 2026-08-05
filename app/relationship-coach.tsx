@@ -147,7 +147,7 @@ const dictionary = [
 const flowExtras: Record<string, { goal:string; avoid:string; still:string; repair:string }> = {
   unheard: { goal:"停止重复争论，让双方重新听见彼此。", avoid:"你每次都是这样，根本没办法沟通。", still:"我愿意继续谈，但我们现在可能都需要先缓一下。等我们能够比较平静地说话时再继续。", repair:"先复述你听见的重点，再确认有没有遗漏。" },
   neglected: { goal:"让TA重新感受到被重视，并看到一个具体补救。", avoid:"我这么忙还不是为了我们，你别想太多。", still:"我知道现在解释只会让你更难受。我先停下来，等你愿意时，我想听听你原本期待我怎么做。", repair:"为具体行为道歉，并约定一个可以观察到的改变。" },
-  unsafe: { goal:"先稳定关系安全感，再处理眼前的问题。", avoid:"你再这样，我们就别谈了。", still:"我没有要消失，也没有要放弃我们。我需要先缓二十分钟，之后会回来继续。", repair:"确认彼此不会突然失联，并共同约定下一次暂停的方式。" },
+  unsafe: { goal:"先稳定关系安全感，再处理眼前的问题。", avoid:"你再这样，我们就别谈了。", still:"我没有要消失，也没有要放弃我们。我需要先缓十五分钟，之后会回来继续。", repair:"确认彼此不会突然失联，并共同约定下一次暂停的方式。" },
   boundary: { goal:"立即停止越界行为，把选择权还给对方。", avoid:"你太敏感了，我又没有什么意思。", still:"我先停下来，不继续逼你回应。你可以决定什么时候、用什么方式继续谈。", repair:"明确承认越界的具体行为，并形成双方都同意的边界。" },
   pressure: { goal:"先降低刺激和身体压力，一次只处理一件事。", avoid:"这么点小事有什么好生气的。", still:"我们现在不用解决所有事情。先停一下，等身体慢下来，再选最重要的一件谈。", repair:"分担一个具体任务，并在第二天回顾这次爆发前的早期信号。" },
 };
@@ -204,7 +204,7 @@ const conflictAnalysis: Record<string, {
     otherState: "TA可能已经超负荷，暂时没有能力处理更多信息。",
     body: ["先把手里的动作停下来，坐稳或站稳", "放松下颌和双手，做三次延长呼气", "减少声音、灯光和持续追问等刺激"],
     words: ["对不起，我没有早点看见你已经撑得很辛苦。", "我们现在不用解决所有事情，先让身体缓下来。"],
-    actions: ["先暂停二十分钟，并约定回来时间", "主动分担一个最具体的现实任务", "平静后只选最重要的一件事讨论"],
+    actions: ["先暂停十五分钟，并约定回来时间", "主动分担一个最具体的现实任务", "平静后只选最重要的一件事讨论"],
   },
 };
 
@@ -224,7 +224,7 @@ const conflictLoops: Record<string, { name: string; summary: string; stop: strin
 
 const reactionGuides = [
   { id:"talk", icon:"👂", label:"TA愿意继续说", action:"把手机放下，完整听完，不抢着补充。", words:"好，我先听。你可以从最难受的那一点说。", decision:"继续，但一次只处理一个问题。" },
-  { id:"loud", icon:"🔥", label:"TA仍然很激动", action:"停止解释，双方拉开适当距离，观察音量和身体反应。", words:"我愿意继续处理，但我们现在可能都听不进去。先暂停二十分钟，____点回来继续。", decision:"建议暂停，并给出明确回来时间。" },
+  { id:"loud", icon:"🔥", label:"TA仍然很激动", action:"停止解释，双方拉开适当距离，观察音量和身体反应。", words:"我愿意继续处理，但我们现在可能都听不进去。先暂停十五分钟，____点回来继续。", decision:"建议暂停，并给出明确回来时间。" },
   { id:"cry", icon:"💧", label:"TA哭了", action:"留在可见范围，不催、不碰，先询问TA希望陪伴还是空间。", words:"对不起，让你这么难受。我在这里，不催你。你想让我陪着，还是先给你一点空间？", decision:"先陪伴，不继续追问事实。" },
   { id:"silent", icon:"🌫️", label:"TA沉默了", action:"停止连续提问，给TA安静和选择权。", words:"你现在不用马上回答。我不会把沉默当成事情结束了。等你准备好，我们再继续。", decision:"给空间，并约定稍后确认。" },
   { id:"leave", icon:"🚪", label:"TA想离开", action:"不要挡路、追赶或拉扯，让TA安全离开。", words:"我不拦你。我们先暂停。我会在____点联系你，你也可以告诉我希望什么时候继续。", decision:"停止现场对话，保留明确连接。" },
@@ -250,11 +250,11 @@ const calmMethods = {
     ["内部提示","在心里重复：我现在不需要立刻回答。","约 10 秒","先让身体慢下来，再决定怎么说。"],
   ],
   home: [
-    ["改变空间","暂时离开发生冲突的房间，去安全、安静的空间。","20—30 分钟","先说明什么时候回来。"],
+    ["改变空间","暂时离开发生冲突的房间，去安全、安静的空间。","15 分钟","先说明什么时候回来。"],
     ["冷水刺激","用凉水清洗面部或手部，把注意力带回身体。","约 30 秒","水温保持舒适，不使用冰水。"],
     ["缓慢活动","低强度走动、伸展或整理物品，释放身体紧张。","5—10 分钟","不要开车、剧烈运动或摔东西。"],
     ["先写，不发送","把想说的话写下来，但暂时不要发送或交给对方。","5 分钟","等平静后重新阅读。"],
-    ["设置暂停计时","设定二十或三十分钟，并按约定回来。","20—30 分钟","暂停不能变成无限期失联。"],
+    ["设置暂停计时","设定十五分钟，并按约定回来。","15 分钟","暂停不能变成无限期失联。"],
     ["身体扫描","依次放松下颌、肩膀、双手和腹部。","约 2 分钟","只观察，不批评自己的反应。"],
   ],
 };
@@ -432,7 +432,7 @@ function QuickCoach({ conflictType, setConflictType, openCalm, openSafety }: any
     {flowStep === 2 && <div className="flow-panel">
       <header className="flow-heading"><span>第三步</span><h1>现在还适合继续沟通吗？</h1><p>请选择正在发生的情况。出现多项时，暂停通常比继续解释更有效。</p></header>
       <div className="pause-checks">{pauseSignals.map(item => <button key={item} onClick={() => togglePause(item)} className={pauseChecks.includes(item) ? "checked" : ""} aria-pressed={pauseChecks.includes(item)}><span>{pauseChecks.includes(item) && <Check size={14}/>}</span>{item}</button>)}</div>
-      <div className={"pause-result " + (pauseRecommended ? "recommend" : "continue")}><header><Pause size={20}/><div><small>判断结果</small><h2>{pauseRecommended ? "建议暂停对话" : "可以谨慎继续"}</h2></div></header>{pauseRecommended ? <><p>现在继续沟通可能让冲突进一步升级。暂停不是逃避，而是让双方恢复基本的思考和倾听能力。</p><blockquote>{c("ER-04-02")}</blockquote><div className="pause-how"><article><b>暂停多久</b><p>建议二十分钟；如果仍然无法思考，可以重新约定明确时间。</p></article><article><b>暂停期间</b><p>不要喝酒、追车、继续微信争吵或找人围攻。可以打开“快速冷静”。</p></article><article><b>如何重新开始</b><p>{c("ER-05-03")}</p></article></div><button className="secondary" onClick={openCalm}>打开快速冷静方法</button></> : <><p>目前仍可能继续沟通，但只处理一个问题，并观察音量、身体反应和对方是否愿意继续。</p><blockquote>{extra.still}</blockquote></>}</div>
+      <div className={"pause-result " + (pauseRecommended ? "recommend" : "continue")}><header><Pause size={20}/><div><small>判断结果</small><h2>{pauseRecommended ? "建议暂停对话" : "可以谨慎继续"}</h2></div></header>{pauseRecommended ? <><p>现在继续沟通可能让冲突进一步升级。暂停不是逃避，而是让双方恢复基本的思考和倾听能力。</p><blockquote>{c("ER-04-02")}</blockquote><div className="pause-how"><article><b>暂停多久</b><p>建议十五分钟；如果仍然无法思考，可以重新约定明确时间。</p></article><article><b>暂停期间</b><p>不要喝酒、追车、继续微信争吵或找人围攻。可以打开“快速冷静”。</p></article><article><b>如何重新开始</b><p>{c("ER-05-03")}</p></article></div><button className="secondary" onClick={openCalm}>打开快速冷静方法</button></> : <><p>目前仍可能继续沟通，但只处理一个问题，并观察音量、身体反应和对方是否愿意继续。</p><blockquote>{extra.still}</blockquote></>}</div>
       {safetyRisk && <button className="inline-safety" onClick={openSafety}>这可能涉及安全风险，查看安全提示 <ArrowRight size={15}/></button>}
     </div>}
 
@@ -506,7 +506,8 @@ function QuickCoachV2({ conflictType, setConflictType, openCalm, openSafety }: a
       <header className="flow-heading"><span>第四步</span><h1>TA现在是什么反应？</h1><p>选择最接近的一项，获得下一句可以直接照着说的话。</p></header>
       <div className="reaction-grid">{reactionGuides.map(item => <button key={item.id} className={reaction === item.id ? "active" : ""} onClick={() => setReaction(item.id)}><span>{item.icon}</span>{item.label}</button>)}</div>
       <div className="reaction-result"><header><span>{reactionGuide.icon}</span><div><small>下一步建议</small><h2>{reactionGuide.decision}</h2></div></header><article><small>先做</small><p>{reactionGuide.action}</p></article><article className="reaction-script"><small>直接说</small><blockquote>“{reactionGuide.words}”</blockquote><button onClick={() => copyText(reactionGuide.words)}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制这句话"}</button></article></div>
-      <details className="pause-details"><summary>不确定要不要暂停？快速判断</summary><p>如果出现多项，暂停通常比继续解释更有效。</p><div className="pause-checks">{pauseSignals.filter(item => item !== "继续交流可能造成安全风险").map(item => <button key={item} onClick={() => togglePause(item)} className={pauseChecks.includes(item) ? "checked" : ""} aria-pressed={pauseChecks.includes(item)}><span>{pauseChecks.includes(item) && <Check size={14}/>}</span>{item}</button>)}</div>{pauseRecommended && <div className="pause-mini"><Pause size={18}/><div><b>建议暂停二十分钟</b><p>可以说：“我不想在情绪很强的时候伤害你。我们先暂停二十分钟，____点回来继续。”</p></div></div>}</details>
+      <Pause15Card recommended={pauseRecommended} openCalm={openCalm}/>
+      <details className="pause-details"><summary>不确定要不要暂停？快速判断</summary><p>如果出现多项，暂停通常比继续解释更有效。</p><div className="pause-checks">{pauseSignals.filter(item => item !== "继续交流可能造成安全风险").map(item => <button key={item} onClick={() => togglePause(item)} className={pauseChecks.includes(item) ? "checked" : ""} aria-pressed={pauseChecks.includes(item)}><span>{pauseChecks.includes(item) && <Check size={14}/>}</span>{item}</button>)}</div>{pauseRecommended && <div className="pause-mini"><Pause size={18}/><div><b>现在建议使用上方的15分钟暂停</b><p>暂停不是消失。说清回来时间，到时必须回来，或主动重新约定。</p></div></div>}</details>
     </div>}
 
     {flowStep === 4 && <div className="flow-panel">
@@ -518,6 +519,23 @@ function QuickCoachV2({ conflictType, setConflictType, openCalm, openSafety }: a
 
     <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep === 0 ? <span/> : flowStep < 4 ? <button className="primary" onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); setDescription(""); setReaction("talk"); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
   </motion.section>;
+}
+
+function Pause15Card({ recommended, openCalm }: { recommended: boolean; openCalm: () => void }) {
+  const [seconds, setSeconds] = useState(15 * 60);
+  const [running, setRunning] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const phrase = "我现在继续说，可能会伤害我们。我想暂停十五分钟。十五分钟后我会回来，我们再继续。";
+  useEffect(() => {
+    if (!running || seconds <= 0) return;
+    const timer = window.setInterval(() => setSeconds(value => value - 1), 1000);
+    return () => window.clearInterval(timer);
+  }, [running, seconds]);
+  useEffect(() => { if (seconds === 0) setRunning(false); }, [seconds]);
+  const reset = () => { setSeconds(15 * 60); setRunning(false); };
+  const copy = () => { navigator.clipboard?.writeText(phrase); setCopied(true); setTimeout(() => setCopied(false), 1500); };
+  const time = `${String(Math.floor(seconds / 60)).padStart(2,"0")}:${String(seconds % 60).padStart(2,"0")}`;
+  return <section className={`pause-15-card ${recommended ? "recommended" : ""}`}><header><div><small>{recommended ? "建议现在暂停" : "如果继续说只会升级"}</small><h2>暂停15分钟</h2><p>暂停不是逃避，也不是失联。先说清楚，再定时回来。</p></div><div className="pause-clock" aria-live="polite"><b>{time}</b><span>{seconds === 0 ? "时间到了" : running ? "正在暂停" : "准备开始"}</span></div></header><div className="pause-script-15"><small>可以直接说</small><blockquote>“{phrase}”</blockquote><button onClick={copy}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制这句话"}</button></div><div className="pause-actions-15"><button className="primary" onClick={() => seconds === 0 ? reset() : setRunning(!running)}>{seconds === 0 ? "重新计时" : running ? "暂停计时" : "开始15分钟计时"}</button><button className="secondary" onClick={reset}><RotateCcw size={14}/> 重置</button><button className="text-button" onClick={openCalm}>这15分钟怎么冷静 <ArrowRight size={14}/></button></div><div className="pause-rules"><article><b>暂停期间</b><p>不继续发长消息、不喝酒、不追车、不找人围攻。</p></article><article><b>身体先降速</b><p>延长呼气、缓慢走动，想说的话先写下但不发送。</p></article><article><b>15分钟以后</b><p>回来先问：“现在适合继续聊吗？”如果还没准备好，主动重新约定时间。</p></article></div></section>;
 }
 
 function CalmMethods() {
@@ -560,7 +578,7 @@ function StepContent({ step, selected, choose, phrase, setPhrase, customPhrase, 
   if (step===2) return <><StepHead n="03" title={c("WORK-03")} desc="情绪不是问题，它是关系里正在发生什么的线索。选择一到两种可能。"/><div className="card-grid">{emotions.map(e=><SelectCard key={e.title} item={e} selected={(selected[2]||[]).includes(e.title)} onClick={()=>choose(2,e.title)}/>)}</div><Reflection>不用猜对。你只需要从“TA怎么又这样”走向“TA是不是很难受”。</Reflection></>;
   if (step===3) return <><StepHead n="04" title={c("WORK-04")} desc="先照顾关系里的需要，再讨论事情怎么解决。"/><div className="card-grid needs">{needs.map(e=><SelectCard key={e.title} item={e} selected={(selected[3]||[]).includes(e.title)} onClick={()=>choose(3,e.title)}/>)}</div></>;
   if (step===4) return <><StepHead n="05" title={c("WORK-05")} desc="对方先感受到你的状态，才会听见你的语言。"/><div className="body-list">{bodyGuides.map(x=><article key={x[1]}><span>{x[0]}</span><div><b>{x[1]}</b><p>{x[2]}</p></div><small>{x[3]}</small></article>)}</div><div className="response-flow"><div><span>1</span><small>第一句话</small><strong>“我看到你现在真的很难受。”</strong></div><div className="pause-card"><Pause size={18}/><p><b>停一下。</b> 不要马上解释。给这句话一点落下来的时间。</p></div><div><span>2</span><small>继续回应</small><strong>“我想先理解你的感受。”</strong></div><div><span>3</span><small>温和确认</small><strong>“你愿意告诉我，刚刚最让你难受的是什么吗？”</strong></div></div></>;
-  if (step===5) return <><StepHead n="06" title={c("WORK-06")} desc="有些本能反应很想解决问题，却会让连接断得更快。"/><div className="dont-list">{donts.map(x=><article key={x[0]}><X size={17}/><div><b>{x[0]}</b><p>{x[1]}</p></div></article>)}</div><Reflection>如果你需要暂停，可以说：“我有点乱，想用十分钟整理一下。十分钟后我会回来继续听。”</Reflection></>;
+  if (step===5) return <><StepHead n="06" title={c("WORK-06")} desc="有些本能反应很想解决问题，却会让连接断得更快。"/><div className="dont-list">{donts.map(x=><article key={x[0]}><X size={17}/><div><b>{x[0]}</b><p>{x[1]}</p></div></article>)}</div><Reflection>如果你需要暂停，可以说：“我有点乱，想用十五分钟整理一下。十五分钟后我会回来继续听。”</Reflection></>;
   if (step===6) return <><StepHead n="07" title={c("WORK-07")} desc="修复不是认输，而是告诉彼此：关系比这一刻的输赢更重要。"/><div className="repair-list">{repairs.map((x,i)=><article key={x[0]}><span>0{i+1}</span><div><strong>“{x[0]}”</strong><p>{x[1]}</p></div><Heart size={18}/></article>)}</div></>;
   return <><StepHead n="08" title={c("WORK-08")} desc="把批评变成清楚的表达，把要求变成可以回应的请求。"/><div className="solve-flow">{[["发生了什么","只说具体看见的事","昨晚我分享工作时，你看了几次手机。"],["我有什么感受","说自己的体验，不定义对方","我有点失落，也有些孤单。"],["我在意什么","找到感受背后真正重要的事","因为我很在意我们专心相处的时间。"],["我想提出什么","给出清楚、具体、可商量的请求","下次我分享十分钟时，你愿意先把手机放下吗？"]].map((x,i)=><article key={x[0]}><span>{i+1}</span><div><b>{x[0]}</b><small>{x[1]}</small><p>“{x[2]}”</p></div></article>)}</div><div className="completion"><Sparkles/><div><b>你完成了一次“先连接，再解决”。</b><p>真正的成长，不是每次都回应完美，而是一次比一次更早看见情绪、更愿意回来修复。</p></div></div></>;
 }
