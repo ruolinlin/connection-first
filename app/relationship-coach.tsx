@@ -131,6 +131,14 @@ const repairGestures = [
   { icon:"📷", title:"重访一个共同记忆", when:c("REPAIR-06-A"), do:c("REPAIR-06-B"), avoid:c("REPAIR-06-C") },
 ];
 
+const repairPlans: Record<string, { apology: string; change: string; followUp: string; gestureIndexes: number[] }> = {
+  unheard: { apology:"对不起，刚才我一直想解释自己，没有先把你的话听进去。", change:"下一次我先听完，再复述我理解到的重点，确认以后才回应。", followUp:"明天再问一次：昨天那件事，我还有什么没有听懂？", gestureIndexes:[3,2,4] },
+  neglected: { apology:"对不起，我的做法让你觉得自己没有被放在心上。", change:"把TA在意的约定写下来，并完成一个现在就能看见的补救。", followUp:"一周后主动检查：我答应的改变有没有真正做到？", gestureIndexes:[0,1,4] },
+  unsafe: { apology:"对不起，我刚才的沉默或离开让你更没有安全感。", change:"以后需要暂停时，说清暂停多久、什么时候回来，并按时回来。", followUp:"共同约定一条暂停规则：不拉黑、不失联、到时间主动联系。", gestureIndexes:[0,3,5] },
+  boundary: { apology:"对不起，我刚才越过了你的边界，也没有尊重你停止对话的选择。", change:"停止追问、挡路或查看隐私，并和TA重新确认可以接受的边界。", followUp:"过几天再确认：这个边界是否清楚，双方是否都能做到？", gestureIndexes:[4,3,2] },
+  pressure: { apology:"对不起，我没有早点看见你已经很累，还在继续增加压力。", change:"主动分担一件具体任务，并把复杂问题拆开，一次只处理一件。", followUp:"第二天回顾这次爆发前出现了哪些疲惫信号。", gestureIndexes:[2,3,0] },
+};
+
 const dictionary = [
   ["委屈", c("EMO-01-1"), c("EMO-01-2"), c("EMO-01-3"), c("EMO-01-4")],
   ["失望", c("EMO-02-1"), c("EMO-02-2"), c("EMO-02-3"), c("EMO-02-4")],
@@ -462,12 +470,14 @@ function QuickCoachV2({ conflictType, setConflictType, openCalm, openSafety }: a
   const [urgency, setUrgency] = useState("生气");
   const [channel, setChannel] = useState("面对面");
   const [reaction, setReaction] = useState("talk");
+  const [selectedGesture, setSelectedGesture] = useState(0);
   const current = conflictTypes.find(type => type.id === conflictType) || conflictTypes[0];
   const extra = flowExtras[current.id];
   const analysis = conflictAnalysis[current.id];
   const loop = conflictLoops[current.id];
   const reactionGuide = reactionGuides.find(item => item.id === reaction) || reactionGuides[0];
-  const repair = repairGestures[Math.max(0, conflictTypes.findIndex(type => type.id === current.id))];
+  const repairPlan = repairPlans[current.id];
+  const repairChoices = repairPlan.gestureIndexes.map(index => repairGestures[index]);
   const pauseRecommended = pauseChecks.length >= 2 || reaction === "loud" || reaction === "leave";
   const descriptionSafetyRisk = /打人|掐|推搡|威胁|刀|武器|不让我走|锁门|自杀|自伤|杀/.test(description);
   const move = (nextStep: number) => { setFlowStep(nextStep); window.scrollTo({ top: 0, behavior: "smooth" }); };
@@ -512,12 +522,14 @@ function QuickCoachV2({ conflictType, setConflictType, openCalm, openSafety }: a
 
     {flowStep === 4 && <div className="flow-panel">
       <header className="flow-heading"><span>第五步 · 冲突缓和以后</span><h1>修复，不只是一句对不起</h1><p>正确顺序是：道歉、理解影响、具体改变，再用行动表达重视。</p></header>
-      <div className="repair-sequence">{[["确认状态","双方能够降低音量、听完一句话。"],["回顾事实","简要说清发生了什么，不一次翻完所有旧账。"],["承认影响",extra.repair],["表达需要","说明自己的感受和真正重视的事情，不定义TA。"],["提出方案","提出一个具体、可讨论、能够做到的改变。"],["确认行动","约定双方接下来各自做什么，以及什么时候检查。"]].map((item,index)=><article key={item[0]}><span>{index + 1}</span><div><b>{item[0]}</b><p>{item[1]}</p></div></article>)}</div>
-      <div className="matched-repair"><span>{repair.icon}</span><div><small>可以加上的关系缓和行动</small><h3>{repair.title}</h3><p>{repair.do}</p><b>注意：{repair.avoid}</b></div></div>
+      <div className="repair-core-grid"><article className="repair-apology"><span>01 · 必须先做</span><h3>为具体影响道歉</h3><blockquote>“{repairPlan.apology}”</blockquote><button onClick={() => copyText(repairPlan.apology)}>{copied ? <Check size={15}/> : <Quote size={15}/>} {copied ? "已复制" : "复制道歉"}</button></article><article><span>02 · 必须兑现</span><h3>给出行为改变</h3><p>{repairPlan.change}</p></article><article><span>03 · 继续跟进</span><h3>让改变持续发生</h3><p>{repairPlan.followUp}</p></article></div>
+      <div className="repair-choice-heading"><div><small>04 · 可自由选择</small><h2>再选一种关系缓和行动</h2><p>根据TA的偏好选择一种即可。它用来表达重视，不能替代前面的道歉和改变。</p></div><span>3种选择</span></div>
+      <div className="repair-choice-grid">{repairChoices.map((item,index) => <button key={item.title} className={selectedGesture === index ? "selected" : ""} onClick={() => setSelectedGesture(index)} aria-pressed={selectedGesture === index}><span>{item.icon}</span><h3>{item.title}</h3><p>{item.when}</p><i>{selectedGesture === index && <Check size={14}/>}</i></button>)}</div>
+      <div className="repair-choice-detail"><span>{repairChoices[selectedGesture].icon}</span><div><small>选择以后，可以这样做</small><h3>{repairChoices[selectedGesture].title}</h3><p>{repairChoices[selectedGesture].do}</p><b>注意：{repairChoices[selectedGesture].avoid}</b></div></div>
       <div className="gift-order"><HeartHandshake size={18}/><p><b>顺序很重要：</b>先道歉 → 理解影响 → 做出改变 → 再用礼物表达重视。</p></div>
     </div>}
 
-    <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep === 0 ? <span/> : flowStep < 4 ? <button className="primary" onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); setDescription(""); setReaction("talk"); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
+    <div className="flow-actions">{flowStep > 0 ? <button className="secondary" onClick={() => move(flowStep - 1)}><ArrowLeft size={16}/> 返回上一步</button> : <span/>}{flowStep === 0 ? <span/> : flowStep < 4 ? <button className="primary" onClick={() => move(flowStep + 1)}>下一步 <ArrowRight size={16}/></button> : <button className="primary" onClick={() => { setPauseChecks([]); setDescription(""); setReaction("talk"); setSelectedGesture(0); move(0); }}><RotateCcw size={15}/> 处理另一次冲突</button>}</div>
   </motion.section>;
 }
 
