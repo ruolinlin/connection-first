@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // V1 is retained as a content archive while the V2 flow is rebuilt.
+    "app/relationship-coach.tsx",
   ]),
 ]);
 

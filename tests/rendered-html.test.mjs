@@ -1,11 +1,6 @@
 import assert from "node:assert/strict";
-import { access, readFile, readdir } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
-
-const developmentPreviewMeta =
-  /<meta(?=[^>]*\bname=["']codex-preview["'])(?=[^>]*\bcontent=["']development["'])[^>]*>/i;
-const templateRoot = new URL("../", import.meta.url);
-const previewRoot = new URL("../app/_sites-preview/", import.meta.url);
 
 async function render() {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -13,79 +8,105 @@ async function render() {
   const { default: worker } = await import(workerUrl.href);
 
   return worker.fetch(
-    new Request("http://localhost/", {
-      headers: { accept: "text/html" },
-    }),
-    {
-      ASSETS: {
-        fetch: async () => new Response("Not found", { status: 404 }),
-      },
-    },
-    {
-      waitUntil() {},
-      passThroughOnException() {},
-    },
+    new Request("http://localhost/", { headers: { accept: "text/html" } }),
+    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
+    { waitUntil() {}, passThroughOnException() {} },
   );
 }
 
-test("server-renders the starter loading skeleton", async () => {
+test("server-renders the V2 calm entry and persistent safety notice", async () => {
   const response = await render();
   assert.equal(response.status, 200);
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, developmentPreviewMeta);
-  assert.match(html, /<title>Your site is taking shape<\/title>/i);
-  assert.match(html, /Building your site/);
-  assert.match(html, /Your site is taking shape/);
-  assert.match(
-    html,
-    /Your first version will appear here automatically when it’s ready\./,
-  );
-  assert.doesNotMatch(html, /Codex/);
-  assert.match(html, /react-loading-skeleton/);
-  assert.match(html, /role="status"/);
+  assert.match(html, /<title>拆弹行动｜先连接，再解决<\/title>/);
+  assert.match(html, /深呼吸/);
+  assert.match(html, /跟着水波节奏呼吸/);
+  assert.match(html, /直接开始/);
+  assert.match(html, /先连接，再解决/);
+  assert.match(html, /如果出现威胁、限制离开、摔砸物品或身体伤害/);
+  assert.doesNotMatch(html, /Step\s*\d|第\s*\d+\s*步|深色模式|情绪词典|关系日记/);
 });
 
-test("keeps the loading skeleton scoped and disposable", async () => {
-  const [preview, css, page, layout, packageJson, files] = await Promise.all([
-    readFile(new URL("SkeletonPreview.tsx", previewRoot), "utf8"),
-    readFile(new URL("preview.css", previewRoot), "utf8"),
-    readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
-    readFile(new URL("../package.json", import.meta.url), "utf8"),
-    readdir(previewRoot),
+test("ships the bounded B.1 acute flow and semantic quote system", async () => {
+  const [content, flow, components, machine, styles, roadmap] = await Promise.all([
+    readFile(new URL("../app/v2/content.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/v2/relationship-flow.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/v2/components.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/v2/flow-machine.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../docs/PRODUCT-ROADMAP.md", import.meta.url), "utf8"),
   ]);
 
-  assert.deepEqual(files.sort(), ["SkeletonPreview.tsx", "preview.css"]);
-  assert.match(preview, /from "react-loading-skeleton"/);
-  assert.match(preview, /baseColor="#eceae7"/);
-  assert.match(preview, /highlightColor="#f9f8f6"/);
-  assert.match(preview, /duration=\{2\.8\}/);
-  assert.match(preview, /sites-skeleton-search-placeholder/);
-  assert.match(packageJson, /"react-loading-skeleton": "3\.5\.0"/);
+  for (const label of [
+    "TA愿意继续说",
+    "TA还是很激动",
+    "TA哭了",
+    "TA不说话",
+    "TA想一个人待着",
+    "我们还在微信里吵",
+  ]) {
+    assert.match(content, new RegExp(label));
+  }
 
-  const shellIndex = preview.indexOf('className="sites-skeleton-shell"');
-  const statusIndex = preview.indexOf('className="sites-skeleton-status"');
-  assert.ok(shellIndex >= 0 && statusIndex > shellIndex);
-  assert.match(css, /position:\s*fixed/);
-  assert.match(css, /inset:\s*0/);
-  assert.match(css, /opacity:\s*0\.52/);
-  assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.doesNotMatch(css, /#020617|canvas|pets|progress/i);
-  assert.doesNotMatch(
-    preview,
-    /loading-spinner|status-mark|status-progress|canvas|cookie|random/i,
-  );
-
-  assert.match(page, /export const metadata:\s*Metadata/);
-  assert.match(page, /"codex-preview": "development"/);
-  assert.match(page, /<SkeletonPreview \/>/);
-  assert.match(layout, /title:\s*"Starter Project"/);
-  assert.doesNotMatch(layout, /codex-preview|_sites-preview|themeColor|\bViewport\b/);
-  assert.doesNotMatch(css, /(^|\s)(html|body)\s*\{/m);
-
-  await assert.rejects(
-    access(new URL("public/_sites-preview", templateRoot)),
-  );
+  assert.match(flow, /TA说话的时候/);
+  assert.match(flow, /我现在能先听完吗/);
+  assert.match(flow, /现在有缓和一点吗/);
+  assert.match(flow, /你想让我抱抱你，还是想自己待一会儿/);
+  assert.match(flow, /这次先到这里/);
+  assert.match(flow, /语音输入/);
+  assert.match(flow, /按表面情况初步归类/);
+  assert.match(flow, /你刚刚处理的是/);
+  assert.match(flow, /这不是对TA真实原因的判断/);
+  assert.match(flow, /说到这里先停/);
+  assert.match(flow, /不要接：“但是你也……”/);
+  assert.match(machine, /MICRO_ACTION_NEXT: "REACTION_SELECT"/);
+  assert.match(flow, /好，你刚才想说的，你继续说，我先听/);
+  assert.match(components, /function SayThisCard/);
+  assert.match(components, /brand-ring--outer/);
+  assert.match(components, /brand-ring--inner/);
+  assert.match(components, /可以这样说/);
+  assert.match(machine, /acuteInterventionCount >= 2/);
+  assert.doesNotMatch(machine, /RETURN_TO_REACTION/);
+  assert.match(flow, /function PauseCountdown/);
+  assert.match(flow, /pauseReferenceMinutes \* 60 \* 1000/);
+  assert.match(flow, /把倒计时发给TA/);
+  assert.match(flow, /pauseUntil/);
+  assert.match(flow, /playGentleWaterSound/);
+  assert.match(flow, /时间只是参考，不代表倒计时结束就必须继续谈/);
+  assert.match(flow, /想先一起换一下心情吗/);
+  assert.match(flow, /在家里/);
+  assert.match(flow, /在外面/);
+  assert.match(flow, /它不是道歉，也不代替之后把事情说清楚/);
+  assert.match(flow, /给关系存一笔/);
+  assert.match(flow, /下一次怎么稳住自己/);
+  assert.match(flow, /导出书签/);
+  assert.match(flow, /导出手机壁纸/);
+  assert.match(flow, /到首页/);
+  assert.doesNotMatch(flow, /回到开始/);
+  assert.match(flow, /function validatePositiveNote/);
+  assert.match(flow, /function exportBookmarkCard/);
+  assert.match(flow, /popstate/);
+  assert.match(flow, /history\.replaceState/);
+  assert.match(flow, /history\.pushState/);
+  assert.match(styles, /@media \(max-width: 680px\)/);
+  assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+  assert.match(styles, /min-height: 44px/);
+  assert.match(styles, /--tiffany-primary:\s*#81d8d0/i);
+  assert.match(styles, /--tiffany-deep:\s*#3f9f99/i);
+  assert.match(styles, /--tiffany-mist:\s*#e8f7f5/i);
+  assert.match(styles, /--breath-level/);
+  assert.match(components, /const cycleDuration = 12_000/);
+  assert.match(components, /window\.cancelAnimationFrame/);
+  assert.match(styles, /\.say-this-card/);
+  assert.match(styles, /\.ambient-waves/);
+  assert.match(styles, /@keyframes ambient-wave-drift/);
+  assert.match(styles, /\.completion-convergence/);
+  assert.match(styles, /\.bookmark-preview/);
+  assert.doesNotMatch(content, /title:\s*"[^"]*。"/);
+  assert.doesNotMatch(flow, /<h1[^>]*>[^<{]*。<\/h1>/);
+  assert.doesNotMatch(styles, /#4d49fc|#3733d9|h1:focus-visible/i);
+  assert.match(roadmap, /Milestone D/);
+  assert.match(roadmap, /给关系充点电/);
 });
