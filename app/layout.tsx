@@ -20,7 +20,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body>
         {children}
         <script charSet="UTF-8" id="LA_COLLECT" src="//sdk.51.la/js-sdk-pro.min.js" />
-        <script dangerouslySetInnerHTML={{ __html: 'LA.init({id:"YOUR_51LA_ID",ck:"YOUR_51LA_CK"})' }} />
+        <script dangerouslySetInnerHTML={{ __html: 'LA.init({id:"3R1TL0jmEItYBYVM",ck:"3R1TL0jmEItYBYVM"})' }} />
       </body>
     </html>
   );
