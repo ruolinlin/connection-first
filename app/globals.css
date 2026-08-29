@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url("https://cdn.jsdelivr.net/npm/lxgw-wenkai-webfont@1.7.0/style.css");
 
 :root {
   --ink: #111716;
@@ -12,7 +13,7 @@
   --warning: #fff7e8;
   --warning-border: #b97800;
   --focus-shadow: rgba(0, 0, 0, 0.1) 0 24px 70px 0;
-  --font-ui: Inter, "HarmonyOS Sans SC", "MiSans", "Source Han Sans SC", "Noto Sans CJK SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --font-ui: "LXGW WenKai", "Kaiti SC", STKaiti, serif;
 }
 
 * { box-sizing: border-box; }
@@ -234,46 +235,6 @@ a:focus-visible {
   color: var(--ink);
   font-size: 14px;
   font-weight: 650;
-}
-
-.input-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 8px;
-}
-
-.input-toolbar .field-label { margin-bottom: 0; }
-
-.voice-button {
-  min-height: 40px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-  border: 1px solid var(--line);
-  border-radius: 50px;
-  background: var(--paper);
-  color: var(--ink);
-  padding: 7px 14px;
-  font-size: 14px;
-  cursor: pointer;
-}
-
-.voice-button:hover { border-color: var(--ink); }
-.voice-button[aria-pressed="true"] {
-  border-color: var(--tiffany-deep);
-  background: var(--tiffany-mist);
-}
-.voice-button:disabled { color: #77827f; cursor: not-allowed; }
-
-.voice-status {
-  min-height: 20px;
-  margin: 8px 0 0;
-  color: var(--tiffany-deep);
-  font-size: 13px;
-  line-height: 1.5;
 }
 
 .situation-classification {
@@ -756,7 +717,7 @@ a:focus-visible {
 .calm-entry .calm-guidance-en {
   margin: 0 0 28px;
   color: color-mix(in srgb, var(--graphite) 78%, transparent);
-  font-family: Inter, "HarmonyOS Sans", sans-serif;
+  font-family: var(--font-ui);
   font-size: 12px;
   letter-spacing: 0.01em;
 }
@@ -999,7 +960,7 @@ a:focus-visible {
   z-index: 1;
   margin: auto 0;
   color: var(--ink);
-  font-family: "Songti SC", STSong, "Source Han Serif SC", serif;
+  font-family: var(--font-ui);
   font-size: clamp(18px, 3vw, 25px);
   font-weight: 400;
   line-height: 1.65;
@@ -1074,8 +1035,6 @@ a:focus-visible {
   .action-instruction, .branch-phrase { font-size: 23px; }
   .say-this-card { margin-block: 24px; padding: 14px 16px 16px; }
   .say-this-card blockquote { font-size: 21px; }
-  .input-toolbar { align-items: flex-end; }
-  .voice-button { min-height: 44px; }
   .pause-timer { padding: 18px; }
   .pause-timer > strong { font-size: 54px; }
   .share-countdown { width: 100%; }

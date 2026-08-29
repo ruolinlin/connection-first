@@ -5,12 +5,10 @@ import {
   Bookmark,
   Download,
   Home,
-  Mic,
   Pause,
   RefreshCw,
   Share2,
   ShieldCheck,
-  Square,
   Volume2,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -941,11 +939,11 @@ function exportBookmarkCard(
 
   const margin = width * 0.105;
   context.fillStyle = theme.wave;
-  context.font = `700 ${Math.round(width * 0.026)}px Inter, sans-serif`;
+  context.font = `700 ${Math.round(width * 0.026)}px "LXGW WenKai", "Kaiti SC", serif`;
   context.fillText("给关系存一笔", margin, height * 0.1);
 
   context.fillStyle = "#111716";
-  context.font = `400 ${Math.round(width * 0.061)}px "Songti SC", STSong, serif`;
+  context.font = `400 ${Math.round(width * 0.061)}px "LXGW WenKai", "Kaiti SC", serif`;
   const lines = wrapCanvasText(context, note, width - margin * 2);
   const lineHeight = width * 0.096;
   const textHeight = lines.length * lineHeight;
@@ -958,7 +956,7 @@ function exportBookmarkCard(
   drawCanvasWaves(context, width, height, theme.wave, waveVariant);
   context.fillStyle = "#111716";
   context.globalAlpha = 0.7;
-  context.font = `500 ${Math.round(width * 0.022)}px Inter, sans-serif`;
+  context.font = `500 ${Math.round(width * 0.022)}px "LXGW WenKai", "Kaiti SC", serif`;
   context.fillText(
     new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "long", day: "numeric" }).format(new Date()),
     margin,
@@ -986,10 +984,7 @@ function RelationshipDeposit({
   advance: (action: FlowAction) => void;
   goHome: () => void;
 }) {
-  const [isListening, setIsListening] = useState(false);
-  const [voiceMessage, setVoiceMessage] = useState("");
   const [exportMessage, setExportMessage] = useState("");
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const { context } = flow;
   const positiveNote = context.positiveNote ?? "";
   const bookmarkWave = Number.isFinite(context.bookmarkWave) ? context.bookmarkWave : 0;
@@ -999,47 +994,6 @@ function RelationshipDeposit({
     bookmarkThemes.findIndex((theme) => theme.id === context.bookmarkTheme),
   );
   const theme = bookmarkThemes[themeIndex];
-
-  useEffect(() => () => recognitionRef.current?.stop(), []);
-
-  const toggleVoice = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      return;
-    }
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) {
-      setVoiceMessage("当前浏览器不支持语音输入，请改用键盘。");
-      return;
-    }
-    const recognition = new Recognition();
-    const original = positiveNote.trim();
-    recognition.lang = "zh-CN";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let index = 0; index < event.results.length; index += 1) {
-        transcript += event.results[index][0]?.transcript ?? "";
-      }
-      replace({
-        type: "UPDATE_POSITIVE_NOTE",
-        value: `${original}${original && transcript ? " " : ""}${transcript}`,
-      });
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      setVoiceMessage("语音已经转成文字，你可以继续修改。");
-    };
-    recognition.onerror = () => {
-      setIsListening(false);
-      setVoiceMessage("没有听清，可以再试一次或改用键盘。");
-    };
-    recognitionRef.current = recognition;
-    setIsListening(true);
-    setVoiceMessage("正在听。只说一件你真正想珍惜的事。");
-    recognition.start();
-  };
 
   const exportCard = (format: "bookmark" | "wallpaper") => {
     if (!validation.valid) return;
@@ -1059,13 +1013,7 @@ function RelationshipDeposit({
       <p className="lead">只记下一件你真正认可、感谢或想珍惜的事。</p>
       <div className="deposit-layout">
         <div className="deposit-editor">
-          <div className="input-toolbar">
-            <label className="field-label" htmlFor="positive-note">积极记录</label>
-            <button className="voice-button" type="button" aria-pressed={isListening} onClick={toggleVoice}>
-              {isListening ? <Square aria-hidden="true" size={15} /> : <Mic aria-hidden="true" size={17} />}
-              {isListening ? "停止录音" : "语音输入"}
-            </button>
-          </div>
+          <label className="field-label" htmlFor="positive-note">积极记录</label>
           <textarea
             id="positive-note"
             value={positiveNote}
@@ -1077,7 +1025,6 @@ function RelationshipDeposit({
             <span className={validation.valid ? "note-valid" : ""}>{validation.message}</span>
             <small>{positiveNote.length}/120</small>
           </div>
-          <p className="voice-status" aria-live="polite">{voiceMessage}</p>
           <div className="bookmark-customize">
             <button type="button" onClick={() => replace({ type: "SET_BOOKMARK_THEME", value: bookmarkThemes[(themeIndex + 1) % bookmarkThemes.length].id })}>
               <RefreshCw aria-hidden="true" size={16} />换一种颜色
@@ -1220,34 +1167,6 @@ function NextTimePlan({
   );
 }
 
-type SpeechRecognitionResultLike = {
-  0: { transcript: string };
-};
-
-type SpeechRecognitionEventLike = {
-  results: ArrayLike<SpeechRecognitionResultLike>;
-};
-
-type SpeechRecognitionLike = {
-  lang: string;
-  continuous: boolean;
-  interimResults: boolean;
-  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
-  onend: (() => void) | null;
-  onerror: ((event: { error?: string }) => void) | null;
-  start: () => void;
-  stop: () => void;
-};
-
-type SpeechRecognitionConstructor = new () => SpeechRecognitionLike;
-
-declare global {
-  interface Window {
-    SpeechRecognition?: SpeechRecognitionConstructor;
-    webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  }
-}
-
 function ConflictInput({
   flow,
   headingRef,
@@ -1260,9 +1179,6 @@ function ConflictInput({
   advance: (action: FlowAction) => void;
 }) {
   const { context } = flow;
-  const [isListening, setIsListening] = useState(false);
-  const [voiceMessage, setVoiceMessage] = useState("");
-  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
   const urgent = context.intensity === "losing-control";
   const classification = getSituationClassification(
     context.description,
@@ -1270,78 +1186,12 @@ function ConflictInput({
     context.channel,
   );
 
-  useEffect(() => {
-    return () => recognitionRef.current?.stop();
-  }, []);
-
-  const toggleVoice = () => {
-    if (isListening) {
-      recognitionRef.current?.stop();
-      return;
-    }
-
-    const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!Recognition) {
-      setVoiceMessage("当前浏览器不支持语音输入，请改用键盘。");
-      return;
-    }
-
-    const recognition = new Recognition();
-    const original = context.description.trim();
-    recognition.lang = "zh-CN";
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.onresult = (event) => {
-      let transcript = "";
-      for (let index = 0; index < event.results.length; index += 1) {
-        transcript += event.results[index][0]?.transcript ?? "";
-      }
-      replace({
-        type: "UPDATE_DESCRIPTION",
-        value: `${original}${original && transcript ? " " : ""}${transcript}`.slice(0, 500),
-      });
-    };
-    recognition.onend = () => {
-      setIsListening(false);
-      setVoiceMessage("语音已经转成文字，你可以继续修改。");
-    };
-    recognition.onerror = (event) => {
-      setIsListening(false);
-      setVoiceMessage(
-        event.error === "not-allowed"
-          ? "没有获得麦克风权限，请允许后再试。"
-          : "没有听清，可以再试一次或改用键盘。",
-      );
-    };
-
-    recognitionRef.current = recognition;
-    setVoiceMessage("正在听，你可以直接说刚刚发生了什么。");
-    setIsListening(true);
-    try {
-      recognition.start();
-    } catch {
-      setIsListening(false);
-      setVoiceMessage("语音输入没有启动，请再试一次。");
-    }
-  };
-
   return (
     <FocusCard intensity={context.intensity}>
       <span className="eyebrow">先记下刚刚发生的事</span>
       <h1 ref={headingRef} tabIndex={-1}>刚刚发生了什么？</h1>
-      <p className="lead">{urgent ? "不用讲完整。写下或说出最关键的一句。" : "不用分析原因，描述刚才发生了的事。"}</p>
-      <div className="input-toolbar">
-        <label className="field-label" htmlFor="conflict-description">一句短描述</label>
-        <button
-          className="voice-button"
-          type="button"
-          aria-pressed={isListening}
-          onClick={toggleVoice}
-        >
-          {isListening ? <Square aria-hidden="true" size={15} /> : <Mic aria-hidden="true" size={17} />}
-          {isListening ? "停止录音" : "语音输入"}
-        </button>
-      </div>
+      <p className="lead">{urgent ? "不用讲完整，写下最关键的一句。" : "不用分析原因，描述刚才发生了的事。"}</p>
+      <label className="field-label" htmlFor="conflict-description">一句短描述</label>
       <textarea
         id="conflict-description"
         value={context.description}
@@ -1350,7 +1200,6 @@ function ConflictInput({
         maxLength={500}
         autoFocus
       />
-      <p className="voice-status" aria-live="polite">{voiceMessage}</p>
       <fieldset className="choice-fieldset">
         <legend>现在有多激烈？</legend>
         <div className="segmented-options">
