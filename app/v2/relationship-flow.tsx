@@ -434,7 +434,7 @@ function Stage({
       <FocusCard intensity={context.intensity}>
         <span className="eyebrow">先暂停一下</span>
         <h1 ref={headingRef} tabIndex={-1}>{isWechat ? "先别一条条回" : "先告诉 TA 你会回来"}</h1>
-        <SayThisCard>{isWechat ? "“好，我先不追着说。我们先停 20 分钟，之后再回来看看。”" : "“我们先暂停20分钟，等我理性一些了我们再继续谈。”"}</SayThisCard>
+        <SayThisCard>{isWechat ? "“好，我先不追着说。我们先停 20 分钟，之后再回来看看。”" : "“我们先暂停20分钟，给迷走神经机会让我们平静下来再继续谈。”"}</SayThisCard>
         <p className="rationale">{isWechat ? "发完以后停止发送。不要再补一条解释。" : "要说清楚，20分钟后会回到的具体位置。"}</p>
         <button
           className="primary-button"
