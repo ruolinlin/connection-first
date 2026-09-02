@@ -169,7 +169,7 @@ export const reactionBranches: Record<ReactionId, ReactionBranch> = {
     label: "TA不说话",
     stage: "GIVE_SPACE",
     title: "先别追问",
-    phrase: "你现在不想说也可以，我不逼你。等你想说的时候，我们再继续。",
+    phrase: "你现在不想说也可以，等你想说的时候我们再继续。",
     action: "留一点安静，不连续追问。一次沉默不等于冷暴力。",
     avoid: "“你到底什么意思？”“你倒是说话啊。”",
   },
