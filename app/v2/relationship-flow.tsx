@@ -299,6 +299,24 @@ function Stage({
     );
   }
 
+  if (stage === "AGITATED_BRIDGE") {
+    const reaction = reactionBranches.agitated;
+    return (
+      <FocusCard intensity={context.intensity}>
+        <span className="eyebrow">先让TA知道你没有逃开</span>
+        <h1 ref={headingRef} tabIndex={-1}>{reaction.title}</h1>
+        <SayThisCard>“{reaction.phrase}”</SayThisCard>
+        <p className="rationale">{reaction.action}</p>
+        <div className="branch-detail">
+          <div><span>先不要</span><p>{reaction.avoid}</p></div>
+        </div>
+        <button className="primary-button" type="button" onClick={() => advance({ type: "PREPARE_PAUSE" })}>
+          说完了，再提出暂停
+        </button>
+      </FocusCard>
+    );
+  }
+
   if (
     stage === "GIVE_SPACE" &&
     context.reaction === "crying" &&

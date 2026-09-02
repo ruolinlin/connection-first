@@ -57,7 +57,7 @@ test("losing-control has a shorter path and immediate channel-aware pause", () =
 test("all reactions map explicitly and crying asks before touch or distance", () => {
   const expected = {
     continue: "CONTINUE_LISTENING",
-    agitated: "PAUSE_PREP",
+    agitated: "AGITATED_BRIDGE",
     crying: "CRYING_CHOICE",
     silent: "GIVE_SPACE",
     space: "GIVE_SPACE",
@@ -78,6 +78,13 @@ test("all reactions map explicitly and crying asks before touch or distance", ()
   assert.equal(flowReducer(crying, { type: "SET_CRYING_PREFERENCE", value: "space" }).stage, "GIVE_SPACE");
   assert.equal(flowReducer(crying, { type: "SET_CRYING_PREFERENCE", value: "unclear" }).stage, "STAY_NEARBY");
   assert.equal(flowReducer(crying, { type: "SET_CRYING_PREFERENCE", value: "closeness" }).stage, "PHYSICAL_CONNECTION");
+
+  const agitated = flowReducer(
+    { ...initialFlowState, stage: "REACTION_SELECT" },
+    { type: "SELECT_REACTION", reaction: "agitated" },
+  );
+  assert.equal(agitated.stage, "AGITATED_BRIDGE");
+  assert.equal(flowReducer(agitated, { type: "PREPARE_PAUSE" }).stage, "PAUSE_PREP");
 });
 
 test("physical connection remains optional and records the selected action", () => {

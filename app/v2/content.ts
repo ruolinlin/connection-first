@@ -149,10 +149,10 @@ export const reactionBranches: Record<ReactionId, ReactionBranch> = {
   agitated: {
     id: "agitated",
     label: "TA还是很激动",
-    stage: "PAUSE_PREP",
-    title: "现在先别讲道理",
-    phrase: "我知道你现在很生气。我先不跟你争这件事。",
-    action: "放低声音，停止重复解释。持续升级时，先暂停一下。",
+    stage: "AGITATED_BRIDGE",
+    title: "先接住，再暂停",
+    phrase: "我知道你现在很生气。我先不解释，也不会不管这件事。",
+    action: "说完先停几秒，让TA听见你没有逃开，再提出暂停。",
     avoid: "继续证明自己为什么没错。",
   },
   crying: {

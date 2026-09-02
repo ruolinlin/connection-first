@@ -58,6 +58,8 @@ test("ships the bounded B.1 acute flow and semantic quote system", async () => {
   assert.doesNotMatch(flow, /语音输入|SpeechRecognition|webkitSpeechRecognition/);
   assert.match(flow, /按表面情况初步归类/);
   assert.match(flow, /你刚刚处理的是/);
+  assert.match(content, /先接住，再暂停/);
+  assert.match(flow, /说完了，再提出暂停/);
   assert.match(flow, /这不是对TA真实原因的判断/);
   assert.match(flow, /说到这里先停/);
   assert.match(flow, /不要接：“但是你也……”/);
