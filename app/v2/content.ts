@@ -151,7 +151,7 @@ export const reactionBranches: Record<ReactionId, ReactionBranch> = {
     label: "TA还是很激动",
     stage: "AGITATED_BRIDGE",
     title: "先接住，再暂停",
-    phrase: "我知道你现在很生气。我先不解释，也不会不管这件事。",
+    phrase: "我知道你现在很生气，我们可以一起解决。",
     action: "说完先停几秒，让TA听见你没有逃开，再提出暂停。",
     avoid: "继续证明自己为什么没错。",
   },
