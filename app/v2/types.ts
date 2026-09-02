@@ -32,6 +32,9 @@ export type FlowStage =
   | "WECHAT_PAUSE"
   | "PAUSE_MODE"
   | "READINESS_CHECK"
+  | "REGULATION_CHOICE"
+  | "SELF_DISTANCE"
+  | "SHARED_INTENTION"
   | "RETURN_TO_LISTENING"
   | "ACUTE_COMPLETE"
   | "RELATIONSHIP_DEPOSIT"
@@ -56,6 +59,14 @@ export type MoodShiftActivityId =
   | "pick-a-snack"
   | "sit-outside";
 
+export type ResetMethod = "self-distance" | "shared-intention";
+
+export type SharedIntentionId =
+  | "avoid-harm"
+  | "understand"
+  | "not-win"
+  | "next-step";
+
 export type BookmarkThemeId = "tide" | "sea-glass" | "morning-mist" | "sand" | "after-rain";
 
 export type FlowContext = {
@@ -66,6 +77,9 @@ export type FlowContext = {
   completedActions: string[];
   readiness?: "ready" | "not-ready";
   readinessAttempts: number;
+  resetMethod?: ResetMethod;
+  selfDistanceNote: string;
+  sharedIntention?: SharedIntentionId;
   acuteInterventionCount: number;
   deescalation?: DeescalationResult;
   contactPreference?: ContactPreference;
@@ -114,6 +128,10 @@ export type FlowAction =
   | { type: "BEGIN_PAUSE"; at?: number }
   | { type: "CHECK_READINESS" }
   | { type: "SET_READINESS"; value: "ready" | "not-ready" }
+  | { type: "SELECT_RESET_METHOD"; value: ResetMethod }
+  | { type: "UPDATE_SELF_DISTANCE_NOTE"; value: string }
+  | { type: "SELECT_SHARED_INTENTION"; value: SharedIntentionId }
+  | { type: "COMPLETE_RESET_METHOD" }
   | { type: "RETURN_AND_LISTEN" }
   | { type: "OPEN_RELATIONSHIP_DEPOSIT" }
   | { type: "OPEN_NEXT_TIME_PLAN" }

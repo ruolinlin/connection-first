@@ -155,9 +155,14 @@ test("pause readiness uses listening ability and returns to de-escalation check"
   assert.equal(state.context.pauseReferenceMinutes, 20);
   state = flowReducer(state, { type: "CHECK_READINESS" });
   state = flowReducer(state, { type: "SET_READINESS", value: "not-ready" });
-  assert.equal(state.stage, "PAUSE_MODE");
+  assert.equal(state.stage, "REGULATION_CHOICE");
   assert.equal(state.context.readinessAttempts, 1);
-  state = flowReducer(state, { type: "CHECK_READINESS" });
+  state = flowReducer(state, { type: "SELECT_RESET_METHOD", value: "self-distance" });
+  assert.equal(state.stage, "SELF_DISTANCE");
+  state = flowReducer(state, { type: "UPDATE_SELF_DISTANCE_NOTE", value: "两个人都想被认真对待" });
+  state = flowReducer(state, { type: "COMPLETE_RESET_METHOD" });
+  assert.equal(state.stage, "READINESS_CHECK");
+  assert.ok(state.context.completedActions.includes("regulation:self-distance"));
   state = flowReducer(state, { type: "SET_READINESS", value: "ready" });
   assert.equal(state.stage, "RETURN_TO_LISTENING");
   state = flowReducer(state, { type: "RETURN_AND_LISTEN" });
@@ -165,6 +170,17 @@ test("pause readiness uses listening ability and returns to de-escalation check"
   assert.equal(state.context.acuteInterventionCount, 2);
   state = flowReducer(state, { type: "SET_DEESCALATION", value: "not" });
   assert.equal(state.stage, "PAUSE_PREP");
+});
+
+test("shared intention returns to the listening readiness check", () => {
+  let state = { ...initialFlowState, stage: "REGULATION_CHOICE" };
+  state = flowReducer(state, { type: "SELECT_RESET_METHOD", value: "shared-intention" });
+  assert.equal(state.stage, "SHARED_INTENTION");
+  assert.equal(flowReducer(state, { type: "COMPLETE_RESET_METHOD" }), state);
+  state = flowReducer(state, { type: "SELECT_SHARED_INTENTION", value: "understand" });
+  state = flowReducer(state, { type: "COMPLETE_RESET_METHOD" });
+  assert.equal(state.stage, "READINESS_CHECK");
+  assert.ok(state.context.completedActions.includes("regulation:shared-intention"));
 });
 
 test("invalid transitions remain inert", () => {

@@ -468,6 +468,88 @@ function Stage({
     );
   }
 
+  if (stage === "REGULATION_CHOICE") {
+    return (
+      <FocusCard quiet>
+        <span className="eyebrow">不用重新计时</span>
+        <h1 ref={headingRef} tabIndex={-1}>还没准备好，先换一种方式</h1>
+        <p className="lead">选一个现在做得到的。</p>
+        <div className="decision-list" role="group" aria-label="选择一种调整方式">
+          <button type="button" onClick={() => advance({ type: "SELECT_RESET_METHOD", value: "self-distance" })}>
+            <strong>退后一步看这场争执</strong>
+            <span>把自己从争执里拉远一点，看看两个人分别在保护什么。</span>
+          </button>
+          <button type="button" onClick={() => advance({ type: "SELECT_RESET_METHOD", value: "shared-intention" })}>
+            <strong>找回“我们是一边的”</strong>
+            <span>先选一个你还想为这段关系保留的目标。</span>
+          </button>
+        </div>
+      </FocusCard>
+    );
+  }
+
+  if (stage === "SELF_DISTANCE") {
+    return (
+      <FocusCard quiet>
+        <span className="eyebrow">退后一步看</span>
+        <h1 ref={headingRef} tabIndex={-1}>像旁观者一样看一眼</h1>
+        <p className="lead">不用判断谁对。只写下两个人分别在保护什么。</p>
+        <label className="field-label" htmlFor="self-distance-note">我看见</label>
+        <textarea
+          id="self-distance-note"
+          value={context.selfDistanceNote}
+          onChange={(event) => replace({ type: "UPDATE_SELF_DISTANCE_NOTE", value: event.target.value })}
+          placeholder="比如：一个人想被重视，另一个人害怕自己又做错了。"
+          maxLength={240}
+          autoFocus
+        />
+        <button
+          className="primary-button"
+          type="button"
+          disabled={context.selfDistanceNote.trim().length < 2}
+          onClick={() => advance({ type: "COMPLETE_RESET_METHOD" })}
+        >
+          写好了，再检查
+        </button>
+      </FocusCard>
+    );
+  }
+
+  if (stage === "SHARED_INTENTION") {
+    const intentions = [
+      ["avoid-harm", "我不想伤害TA"],
+      ["understand", "我想听懂TA真正介意什么"],
+      ["not-win", "我想把事情说清楚，而不是争输赢"],
+      ["next-step", "我想和TA一起找到下一步"],
+    ] as const;
+    return (
+      <FocusCard quiet>
+        <span className="eyebrow">找回共同方向</span>
+        <h1 ref={headingRef} tabIndex={-1}>你还想保护什么？</h1>
+        <div className="decision-list" role="group" aria-label="选择想保护的目标">
+          {intentions.map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={context.sharedIntention === id}
+              onClick={() => replace({ type: "SELECT_SHARED_INTENTION", value: id })}
+            >
+              <strong>{label}</strong>
+            </button>
+          ))}
+        </div>
+        <button
+          className="primary-button"
+          type="button"
+          disabled={!context.sharedIntention}
+          onClick={() => advance({ type: "COMPLETE_RESET_METHOD" })}
+        >
+          记住了，再检查
+        </button>
+      </FocusCard>
+    );
+  }
+
   if (stage === "RETURN_TO_LISTENING") {
     return (
       <FocusCard quiet>
@@ -698,9 +780,6 @@ function PauseMode({
     <FocusCard quiet>
       <span className="eyebrow">先暂停一下</span>
       <h1 ref={headingRef} tabIndex={-1}>先让身体慢下来</h1>
-      {context.readiness === "not-ready" ? (
-        <p className="pause-status" role="status">还没准备好也没关系。新的 20 分钟已经开始，不要急着回去证明什么。</p>
-      ) : null}
       <PauseCountdown endAt={endAt} soundEnabled />
       <div className="water-cue-note">
         <Volume2 aria-hidden="true" size={18} />

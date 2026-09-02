@@ -52,6 +52,9 @@ test("ships the bounded B.1 acute flow and semantic quote system", async () => {
 
   assert.match(flow, /TA说话的时候/);
   assert.match(flow, /我现在能先听完吗/);
+  assert.match(flow, /退后一步看这场争执/);
+  assert.match(flow, /找回“我们是一边的”/);
+  assert.doesNotMatch(flow, /新的 20 分钟已经开始/);
   assert.match(flow, /现在有缓和一点吗/);
   assert.match(flow, /你想让我抱抱你，还是想自己待一会儿/);
   assert.match(flow, /这次先到这里/);

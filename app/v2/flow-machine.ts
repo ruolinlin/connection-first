@@ -9,6 +9,7 @@ export const initialFlowState: FlowState = {
     channel: "face-to-face",
     completedActions: [],
     readinessAttempts: 0,
+    selfDistanceNote: "",
     acuteInterventionCount: 0,
     positiveNote: "",
     bookmarkTheme: "tide",
@@ -227,18 +228,47 @@ export function flowReducer(state: FlowState, action: FlowAction): FlowState {
     case "SET_READINESS":
       if (state.stage !== "READINESS_CHECK") return state;
       return {
-        stage: action.value === "not-ready" ? "PAUSE_MODE" : "RETURN_TO_LISTENING",
+        stage: action.value === "not-ready" ? "REGULATION_CHOICE" : "RETURN_TO_LISTENING",
         context: {
           ...state.context,
           readiness: action.value,
           readinessAttempts: state.context.readinessAttempts + (action.value === "not-ready" ? 1 : 0),
-          pauseStartedAt: action.value === "not-ready" ? Date.now() : state.context.pauseStartedAt,
           completedActions:
             action.value === "ready"
               ? addCompletedAction(state.context.completedActions, "pause:ready-to-listen")
               : state.context.completedActions,
         },
       };
+    case "SELECT_RESET_METHOD":
+      if (state.stage !== "REGULATION_CHOICE") return state;
+      return {
+        stage: action.value === "self-distance" ? "SELF_DISTANCE" : "SHARED_INTENTION",
+        context: { ...state.context, resetMethod: action.value },
+      };
+    case "UPDATE_SELF_DISTANCE_NOTE":
+      if (state.stage !== "SELF_DISTANCE") return state;
+      return { ...state, context: { ...state.context, selfDistanceNote: action.value.slice(0, 240) } };
+    case "SELECT_SHARED_INTENTION":
+      if (state.stage !== "SHARED_INTENTION") return state;
+      return { ...state, context: { ...state.context, sharedIntention: action.value } };
+    case "COMPLETE_RESET_METHOD": {
+      if (state.stage !== "SELF_DISTANCE" && state.stage !== "SHARED_INTENTION") return state;
+      const valid = state.stage === "SELF_DISTANCE"
+        ? state.context.selfDistanceNote.trim().length >= 2
+        : Boolean(state.context.sharedIntention);
+      if (!valid) return state;
+      return {
+        stage: "READINESS_CHECK",
+        context: {
+          ...state.context,
+          readiness: undefined,
+          completedActions: addCompletedAction(
+            state.context.completedActions,
+            `regulation:${state.context.resetMethod ?? "unknown"}`,
+          ),
+        },
+      };
+    }
     case "RETURN_AND_LISTEN":
       if (state.stage !== "RETURN_TO_LISTENING") return state;
       return {
