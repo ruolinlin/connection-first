@@ -154,6 +154,7 @@ export type ReactionBranch = {
   label: string;
   stage:
     | "CONTINUE_LISTENING"
+    | "AGITATED_BRIDGE"
     | "CRYING_CHOICE"
     | "GIVE_SPACE"
     | "PAUSE_PREP"
